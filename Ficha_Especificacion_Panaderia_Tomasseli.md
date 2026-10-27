@@ -32,7 +32,7 @@ Google Workspace · WhatsApp · Loyverse · n8n · Machine Learning
 5. **Anexo A:** decisiones pendientes de validación.
 
 > La especificación evita deliberadamente cualquier contenido de carácter económico.
-
+> **Adaptación académica:** la propuesta técnica de referencia se preparó para una implementación comercial real. Esta ficha la convierte en un reto de aprendizaje: alcance, herramientas, indicadores, datos y entregables deben validarse por el equipo y con el propietario del lugar antes de desplegar.
 ---
 
 ## 1. Necesidades
@@ -417,24 +417,35 @@ Google Sheets, Google Forms y Gmail; WhatsApp Business API; Loyverse TPV y API/c
 
 | # | Caso | Resultado esperado |
 |---|---|---|
-| P-01 | Alta/edición de menú por Form | Las reglas validan campos; el cambio queda auditado y visible al bot dentro del objetivo de actualización. |
-| P-02 | Consulta de producto activo/agotado | El bot muestra solo datos vigentes; un agotado no se confirma y se ofrecen alternativas autorizadas. |
-| P-03 | Pedido completo y claro | Resumen, aceptación explícita, un Pedido, comanda impresa desde Loyverse en cocina, sin mensajes a cocina por WhatsApp, y respuesta al cliente dentro del objetivo. |
-| P-04 | Pedido incompleto/ambiguo | Pregunta solo los campos faltantes; no crea pedido confirmado antes de la aceptación. |
-| P-05 | Repetición de webhook | Un pedido/comanda/venta como máximo; el evento duplicado queda reconocido. |
-| P-06 | Error de WhatsApp/Sheets/LLM | Mensaje de espera o derivación, error trazado, reintento controlado; no se confirma falsamente. |
-| P-07 | Falla de la comanda de cocina (Loyverse no la genera o no se imprime) | El pedido persiste con `pos_status` pendiente; alerta escalada, copia imprimible en la vista operativa y reintento sin duplicidad. |
-| P-08 | Integración Loyverse | SKU correcto, referencia cruzada, estado POS registrado y comanda generada; las fallas van a conciliación. |
-| P-09 | Cambio/cancelación después de confirmar | Historial y comanda de cocina actualizada según la capacidad validada; actualización POS conforme a la política. |
-| P-10 | Cierre diario | El Gmail contiene totales por estado/canal, pedidos pendientes, diferencias frente a Loyverse, incidencias y previsión de pedidos. |
-| P-11 | Permisos/seguridad | Los roles no autorizados no modifican el catálogo; los secretos no aparecen en logs ni mensajes. |
-| P-12 | Carga/tiempo | Medición con tráfico piloto; objetivo de 10 s evaluado y la saturación genera cola, no pérdida silenciosa. |
-| P-13 | Generación de la previsión con historial suficiente | PrediccionPedidos se llena por fecha, franja y SKU, con fecha de generación y versión del modelo, sin datos personales. |
-| P-14 | Modelo vs. línea base simple | Se documenta la comparación; si el modelo no mejora la línea base, no se publica la previsión. |
-| P-15 | Previsión vencida o historial insuficiente | No se muestra como vigente; queda registrada una alerta. |
-| P-16 | Independencia de la previsión | La previsión no cambia disponibilidad, cupos ni la aceptación o confirmación de pedidos. |
+| T1 | Alta/edición de menú por Form | Las reglas validan campos; el cambio queda auditado y visible al bot dentro del objetivo de actualización. |
+| T2 | Consulta de producto activo/agotado | El bot muestra solo datos vigentes; un agotado no se confirma y se ofrecen alternativas autorizadas. |
+| T3 | Pedido completo y claro | Resumen, aceptación explícita, un Pedido, comanda impresa desde Loyverse en cocina, sin mensajes a cocina por WhatsApp, y respuesta al cliente dentro del objetivo. |
+| T4 | Pedido incompleto/ambiguo | Pregunta solo los campos faltantes; no crea pedido confirmado antes de la aceptación. |
+| T5 | Repetición de webhook | Un pedido/comanda/venta como máximo; el evento duplicado queda reconocido. |
+| T6 | Error de WhatsApp/Sheets/LLM | Mensaje de espera o derivación, error trazado, reintento controlado; no se confirma falsamente. |
+| T7 | Falla de la comanda de cocina (Loyverse no la genera o no se imprime) | El pedido persiste con `pos_status` pendiente; alerta escalada, copia imprimible en la vista operativa y reintento sin duplicidad. |
+| T8 | Integración Loyverse | SKU correcto, referencia cruzada, estado POS registrado y comanda generada; las fallas van a conciliación. |
+| T9 | Cambio/cancelación después de confirmar | Historial y comanda de cocina actualizada según la capacidad validada; actualización POS conforme a la política. |
+| T10 | Cierre diario | El Gmail contiene totales por estado/canal, pedidos pendientes, diferencias frente a Loyverse, incidencias y previsión de pedidos. |
+| T11 | Permisos/seguridad | Los roles no autorizados no modifican el catálogo; los secretos no aparecen en logs ni mensajes. |
+| T12 | Carga/tiempo | Medición con tráfico piloto; objetivo de 10 s evaluado y la saturación genera cola, no pérdida silenciosa. |
+| T13 | Generación de la previsión con historial suficiente | PrediccionPedidos se llena por fecha, franja y SKU, con fecha de generación y versión del modelo, sin datos personales. |
+| T14 | Modelo vs. línea base simple | Se documenta la comparación; si el modelo no mejora la línea base, no se publica la previsión. |
+| T15 | Previsión vencida o historial insuficiente | No se muestra como vigente; queda registrada una alerta. |
+| T16 | Independencia de la previsión | La previsión no cambia disponibilidad, cupos ni la aceptación o confirmación de pedidos. |
 
-### 4.4 Contingencias y continuidad (Plan B)
+### 4.4 Guion del Demo Day
+
+1. Presentar el proceso de atención manual y las mediciones levantadas; si no hay datos reales autorizados, identificar la demostración como simulación.
+2. Mostrar los puntos de fricción y los requisitos priorizados por clientes, caja y cocina.
+3. Realizar un pedido por el prototipo: consulta, selección, personalización, validación y confirmación.
+4. Mostrar el mismo pedido en la vista operativa y actualizar su estado.
+5. Simular un producto agotado, una solicitud ambigua y una falla de integración para evidenciar las rutas de excepción.
+6. Mostrar alertas e indicadores calculados con los datos de prueba, aclarando su origen.
+7. Presentar la evaluación de ML si se hizo, comparada con la regla base; si no hay evidencia suficiente, explicar por qué no se recomienda usarlo.
+8. Cerrar con aprendizajes, límites, plan de mejora y decisiones que requieren validación de Tomasseli.
+
+### 4.5 Contingencias y continuidad (Plan B)
 
 | Evento | Acción operativa |
 |---|---|
@@ -446,7 +457,7 @@ Google Sheets, Google Forms y Gmail; WhatsApp Business API; Loyverse TPV y API/c
 | Cierre Gmail falla | Guardar reporte y alerta en cola; revisión manual del cuadre; reenvío controlado sin duplicar notificación. |
 | El modelo de ML no mejora la línea base o falla | No se publica la previsión o se conserva la última vigente con su fecha; administración y cocina planifican con el promedio histórico por día y franja. |
 
-### 4.5 Criterios de salida y operación
+### 4.6 Criterios de salida y operación
 
 La salida a producción requiere aprobación de catálogo/mapeo SKU, horarios y reglas; prueba de cada integración, incluida la emisión de la comanda impresa en cocina; responsables de excepciones; textos de privacidad; acceso protegido; procedimiento manual; recomendación de uso o no uso del modelo de previsión; y aceptación del piloto. Durante la operación se revisan diariamente excepciones y cuadre; semanalmente se evalúan exactitud, tiempos, disponibilidad de menú, causas de derivación y error de la previsión frente a la línea base. Toda modificación de reglas, prompts, mapeos o versión del modelo pasa por registro, validación y reversión documentada.
 
