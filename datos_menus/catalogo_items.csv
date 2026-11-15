@@ -1,3 +1,4 @@
+id_item,id_categoria,nombre_estandar,descripcion_acompanamientos,es_fijo,activo
 ME001,ME,Res a la francesa,"Papas a la francesa, arroz, ensalada con aguacate, mayonesa de ajo y huevo frito",f,t
 ME002,ME,Sudado de pollo,"Aguacate, papa, yuca y zanahoria",f,t
 ME003,ME,Pescado apanado,"Patacón, arroz y ensalada con aguacate",f,t
