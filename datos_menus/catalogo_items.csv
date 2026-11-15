@@ -1,0 +1,31 @@
+ME001,ME,Res a la francesa,"Papas a la francesa, arroz, ensalada con aguacate, mayonesa de ajo y huevo frito",es_fijo,activo
+ME002,ME,Sudado de pollo,"Aguacate, papa, yuca y zanahoria",f,t
+ME003,ME,Pescado apanado,"Patacón, arroz y ensalada con aguacate",f,t
+ME004,ME,Arroz con pollo,"Papas a la francesa, ensalada con aguacate y huevo frito",f,t
+ME005,ME,Cordon Bleu,"Papas a la francesa, arroz, mayonesa de ajo, ensalada con aguacate y huevo",f,t
+ME006,ME,Milanesa Napolitana,"Papas a la francesa, arroz, ensalada con aguacate y huevo frito",f,t
+ME007,ME,Posta cartagenera,"Patacón con hogao, arroz y ensalada con aguacate",f,t
+ME008,ME,Pollo a la naranja,"Papas a la francesa, vegetales salteados y aguacate",f,t
+MS001,MS,Cerdo,,t,t
+MS002,MS,Chicharrón,,t,t
+MS003,MS,Pollo a la plancha,,t,t
+MS004,MS,Carne molida,,t,t
+SP001,SP,Frijol,,t,t
+SP002,SP,Crema de zanahoria,,f,t
+SP003,SP,Sopa campesina,,f,t
+SP004,SP,Crema de espinaca con brócoli,,f,t
+SP005,SP,Sopa de pastas,,f,t
+SP006,SP,Sopa de tortilla,,f,t
+SP007,SP,Crema de ahuyama,,f,t
+SP008,SP,Sopa de patacón,,f,t
+SP009,SP,Sopa de verduras,,f,t
+SP010,SP,Crema de tomate,,f,t
+SP011,SP,Crema de arracacha con papa criolla,,f,t
+SP012,SP,Crema de zucchini,,f,t
+JG001,JG,Limonada de panela,,t,t
+JG002,JG,Jugo de maracuyá,,f,t
+JG003,JG,Jugo de guayaba,,f,t
+JG004,JG,Jugo de mora,,f,t
+JG005,JG,Jugo de lulo,,f,t
+JG006,JG,Limonada de piña con yerbabuena,,f,t
+JG007,JG,Limonada de zanahoria,,f,t
