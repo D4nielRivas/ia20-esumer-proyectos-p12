@@ -1,0 +1,67 @@
+
+### Ramas
+
+git branch <nombre_que_quiero_para_la_rama>.   #Crea una rama con ese nombre
+git checkout VeroArci                 # confirmar que están en su rama, no en main
+git checkout -b VeroArci       #Atajo: crea y viaja en un paso * Pendiente revisar este comando.
+
+
+### Zonas
+
+- Zona 1: Zona de trabajo 
+- Zona 2: área de preparación La sala de espera (staging):archivos listos para empaquetar 
+- Zona 3:Repositorio local, historial seguro (carpeta .git)
+
+### Para subir mis cambios
+Le doy cmd + S para guardar los cambios en mis archivos antes de commit
+git status                            # ¿hay cambios sin commitear? me dice en que zona está cada archivo
+git branch                            #Marca con * la rama enla que estoy
+git add <archivo_que_quiero_agregar>  # Mueve los cambios del archivo a la zona de espera
+git add .                              # Mueve los cambios de todos los archivos a la zona de espera
+git commit -m "mensaje"               # Toma la foto final y la guarda en el historial y le agrega el mensaje del cambio que realizó
+git push origin <nombre_rama>         # Sube los commits locales a la nube
+git fetch                             # Descarga las novedades sin tocar mi trabajo * Revisar bien este comando
+git pull                              # Descarga las novedades fusionándolas con mi trabajo
+git push -u origin <nombre_rama>      #Pido que mi rama se integre a la rama principal.  * Revisar la diferencia de este push con el otro 
+git merge <nombre_rama>               # Integro lo de mi rama a main
+
+#### Como hacer commit con mensajes profesionales
+3 tipos: Feat, Fix y docs; después de cada uno colocar : y dar un mensaje descriptivo.
+
+Feat: add login page    # Documentar nueva funcionalidad
+fix: remove wrong color   # Documentar corrección de un error
+docs: update readme      # Documentar cambios en la documentación
+
+### Revisar lo que has hecho
+git log --oneline # Muestra tu historial, busca el códico único hash del commit al que quieres volver 
+* Pendiente revisar el concepto de hash
+
+### Revertir lo que hiciste
+git revert <hash>.           # Deshace de forma segura, crea un commit nuevo que revierte el anterior
+
+### Paso a paso para sincronización
+Cuando el profe actualiza algo en la rama main y quiero traer lo que actualizó sin perder mis cambios o generar conflictos
+
+Fase 1 base 
+git checkout main           # aterrizo en la rama main
+git pull origin main        # Descargo los cambios del profe
+
+Fase 2 Integra
+git checkout VeroArci      #Vuelvo a mi rama
+git merge main             #Inyecto las actualizaciones a mi código
+
+
+### Para crear carpetas
+cd Laboratorio_3        # voy a esa carpeta
+mkdir Laboratorio_3     # creo esa carpeta
+mkdir insumos prompts pruebas Salidas # Para crear varias carpetas al tiempo
+
+
+# Otros comandos útiles
+Esc  + : + q                #me saca del editor dentro de la terminal
+
+
+### Enlaces útiles machine Learning
+
+https://scikit-learn.org/stable/
+https://www.kaggle.com/code/mathiaskneis/segmentacion-pca-y-kmeans-y-perfilado-de-cliente
