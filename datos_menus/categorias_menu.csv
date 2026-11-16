@@ -1,0 +1,5 @@
+id_categoria,nombre,precio,acompanamientos_base
+ME,Menú Especial,25000.00,Incluye sopa y jugo natural
+MS,Menú Sencillo,20000.00,"Tajada, huevo, sopa, postre y jugo natural"
+SP,Sopa,0.00,
+JG,Jugo Natural,0.00,
