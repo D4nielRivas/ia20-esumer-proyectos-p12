@@ -132,8 +132,11 @@ Spec 001 · Parte A (políticas):
 2. H-1 · Evaluación con insumos/preguntas_politicas.jsonl.
 Spec 001 · Parte B (conversación, pedido y datos):
 3. H-2 · RF1 y RF3: ingesta de los CSV a categorias_menu, catalogo_items y plantilla_menu; generación de menu_del_dia por fecha; consulta del menú vigente por categoría con precios (R1, R2, R9; P-02).
-4. H-3 · RF4, RF5, RF6 y RF11: conversación con P2 v1.1:
-   - presentar el menú y preguntar solo lo que falta;
+4. H-3 · RF4, RF5, RF6 y RF11: conversación guiada (README §3.4, «Conducción»):
+   - una máquina de estados por conversación, guardada en conversaciones, conduce el pedido almuerzo por almuerzo: principal (ME o MS), sopa, jugo, cantidad, modalidad y hora;
+   - presenta las opciones disponibles numeradas por categoría, con precio; una respuesta con número la resuelven las reglas, sin LLM;
+   - ante texto libre, el LLM clasifica la intención y extrae con P2 v1.1 lo que pueda; lo extraído llena el mismo estado y pasa por las mismas validaciones (las 30 conversaciones de prueba traen texto libre);
+   - preguntar solo lo que falta;
    - validar (R1–R5, R8, R11, R12, R15);
    - mostrar el resumen con total estimado y recibir la aceptación explícita;
    - revalidar la disponibilidad y registrar de forma idempotente en pedidos y detalle_pedido (P-04 a P-09).
@@ -201,7 +204,7 @@ Stack común (local → GCP, cambiando solo la configuración RAG_PERFIL=local|g
 - Servicio (API): FastAPI con uv run uvicorn en localhost:8000 → Cloud Run «chat-a-la-comanda» (escala a cero).
 - Interfaz: Streamlit en localhost:8501, que solo captura y muestra y consume la API por API_URL → segundo servicio de Cloud Run.
 - Base relacional + vectorial: PostgreSQL 16 + pgvector con docker compose → Cloud SQL PostgreSQL 16 + pgvector.
-- LLM: Ollama qwen2.5:3b (7b o 1.5b según la RAM); API de Gemini solo para la evaluación final y el Demo → Vertex AI Gemini Flash.
+- LLM: Ollama qwen2.5:3b (7b o 1.5b según la RAM), nativo en el portátil (no dentro de Docker, para usar la GPU del Mac) y accesible desde los contenedores por OLLAMA_URL; API de Gemini solo para la evaluación final y el Demo → Vertex AI Gemini Flash.
 - Embeddings: Ollama bge-m3 (dimensión 1024) → text-multilingual-embedding-002 (dimensión 768).
 - Documentos de políticas: insumos/base_conocimiento/ → bucket de Cloud Storage; solo la ingesta los lee.
 - Ingesta: uv run comanda ingestar --limpiar → Cloud Run Job con la misma imagen y el mismo comando.
@@ -222,7 +225,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - fuente de documentos: carpeta local / gs://;
    - reloj: inyectable, para probar la ventana con fecha y hora simuladas.
 2. Toda la configuración por variables de entorno, con .env.example completo y documentado y sin secretos. Incluye:
-   - RAG_PERFIL, PORT, DATABASE_URL, API_URL, API_KEY y RAG_EMBED_DIM;
+   - RAG_PERFIL, PORT, DATABASE_URL, API_URL, API_KEY, OLLAMA_URL y RAG_EMBED_DIM;
    - TZ_NEGOCIO, MARGEN_PREPARACION_MIN, RETENCION_PEDIDOS_DIAS y RETENCION_CONVERSACIONES_DIAS;
    - LLM_PROVEEDOR, LLM_MODELO, LLM_TOPE_USD, LLM_TEMPERATURA, GEMINI_API_KEY (vacía) y los timeouts de RNF1;
    - los tokens de WhatsApp.
@@ -267,6 +270,7 @@ Cómo hacer cada paso:
 - /speckit-specify: el qué y el porqué, sin tecnología. Historias H-1…H-7 y H-9 en la spec 001 (partes A y B) y H-8 en la spec 002, según la ficha técnica §4, con criterios de aceptación verificables trazados a RF, RNF, R y P del README y a los casos de los sets de prueba. Incluye las secciones «Conflictos detectados», «Recortes pendientes de aprobación» (desde docs/recortes_p12.md) y «Fuera de alcance (NA)».
 - /speckit-clarify: responde tú cada pregunta con la opción recomendada y justifícala en una línea en Aclaraciones. Lo que el README resuelve (Anexo A) no se vuelve a preguntar; usa su lista de pendientes como supuestos.
 - /speckit-plan con el stack de arriba; debe pasar el Constitution Check. El data-model reproduce el README §3.2 (tablas, PK, FK, UNIQUE, CHECK y vistas) sin cambiar nombres. Los contratos usan P2 v1.1 tal como está en el README §3.6. Documenta en research.md (Decisión / Justificación / Alternativas):
+  - la máquina de estados de la conversación guiada y cómo se combina con la extracción del texto libre;
   - Ollama frente a Gemini para la extracción con P2;
   - la deduplicación de mensajes de WhatsApp con varias instancias;
   - regresión lineal frente a árbol de regresión, comparados con la línea base, y cómo se versiona y carga el modelo en app/models/vN/;
