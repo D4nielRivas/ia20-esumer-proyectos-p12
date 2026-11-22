@@ -7,13 +7,14 @@ personales, reemplazan este archivo con el mismo formato.
 
 Uso (desde la raíz del repositorio, solo biblioteca estándar):
 
-    python3 scripts/generar_historial.py
+    python3 scripts/generar_pedidos_sinteticos.py
 
-Salida: insumos/historial_pedidos.jsonl, una línea por fecha, franja y
-opción ofrecida ese día (incluye las cantidades en cero):
+Salida: insumos/historial_pedidos.csv (UTF-8, con encabezado), una fila
+por fecha, franja y opción ofrecida ese día (incluye las cantidades en
+cero):
 
-    {"fecha": "2026-08-30", "franja": "11:30", "item_id": "ME004",
-     "categoria": "ME", "cantidad": 2}
+    fecha,franja,item_id,categoria,cantidad
+    2026-08-30,11:30,ME004,ME,2
 
 Supuestos de la simulación (decididos por el equipo el 22 Nov 2026):
 - 12 semanas: del domingo 30 ago al sábado 21 nov de 2026 (84 días):
@@ -33,7 +34,6 @@ Supuestos de la simulación (decididos por el equipo el 22 Nov 2026):
 """
 import csv
 import datetime as dt
-import json
 import random
 from pathlib import Path
 
@@ -57,7 +57,8 @@ PROB_SIN_JUGO = 0.05
 
 RAIZ = Path(__file__).resolve().parent.parent
 INSUMOS = RAIZ / "insumos"
-SALIDA = INSUMOS / "historial_pedidos.jsonl"
+SALIDA = INSUMOS / "historial_pedidos.csv"
+COLUMNAS = ["fecha", "franja", "item_id", "categoria", "cantidad"]
 
 
 def leer_menu():
@@ -116,9 +117,10 @@ def main():
                           "item_id": item, "categoria": categoria[item],
                           "cantidad": cantidad})
 
-    with open(SALIDA, "w", encoding="utf-8") as f:
-        for fila in filas:
-            f.write(json.dumps(fila, ensure_ascii=False) + "\n")
+    with open(SALIDA, "w", encoding="utf-8", newline="") as f:
+        escritor = csv.DictWriter(f, fieldnames=COLUMNAS, lineterminator="\n")
+        escritor.writeheader()
+        escritor.writerows(filas)
     print(f"{len(filas)} filas escritas en {SALIDA.relative_to(RAIZ)}")
 
 
