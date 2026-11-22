@@ -16,7 +16,7 @@ Registro de las inconsistencias encontradas entre `README.md`, `docs/ficha-tecni
 | A6 | Un `pedido_id` único no impide el duplicado si el webhook se reintenta | `pedidos.mensaje_origen_id` único y tabla `mensajes_procesados` | README RNF3, R5, §3.2, P-09 |
 | A7 | La pausa del bot y la vista de conversaciones no tenían dónde guardarse | Tabla `conversaciones`, sin texto completo de los mensajes | README §3.2, RF8 |
 | A8 | Los «7 principios comunes» se citaban, pero no estaban en el repo, y el Anexo B traía 5 distintos | Se copiaron los 7 del índice de proyectos del curso; los 5 del Anexo B quedan como «Principios de trabajo del curso» | README Anexo B; ficha técnica §3 |
-| A9 | Los enlaces de la ficha técnica apuntaban a archivos inexistentes | Corregidos a `../README.md`, `otros/V1 …pdf`, el análisis y el prompt | Ficha técnica (cabecera) |
+| A9 | Los enlaces de la ficha técnica apuntaban a archivos inexistentes | Corregidos a `../README.md`, el PDF, el análisis y el prompt | Ficha técnica (cabecera) |
 | A10 | Las historias «H-1 a H-7» no estaban definidas y se confundían con los hitos H1–H6 | Mapa H-1…H-8 propuesto y aprobado; el número es el orden de implementación | Ficha técnica §4; PROMPT_SPEC |
 | A11 | Quién despliega: la ficha técnica y el curso dicen que el equipo aplica `003-despliegue-gcp`; el marco del prompt dice que despliega el docente | **Despliega el docente.** No hay spec 003 y el cronograma y el Demo quedaron ajustados. ⚠ Esto se aparta del índice del curso: confírmalo con el docente | Ficha técnica §4, §6, §7 y §8; README §4.4 |
 | A12 | El stack común le asigna a p12 un «modelo tabular» | No aplica | Ficha técnica (cabecera) |
@@ -25,6 +25,7 @@ Registro de las inconsistencias encontradas entre `README.md`, `docs/ficha-tecni
 | A15 | Git registraba las carpetas como `Docs/` e `Insumos/`, con mayúscula, aunque el curso exige minúsculas (macOS no muestra la diferencia; GitHub sí) | Renombradas en Git a `docs/` e `insumos/` | Repositorio |
 | A16 | El prompt vivía en `prompt/`, pero el curso pide `PROMPT_SPEC.md` en la raíz | Movido a `PROMPT_SPEC.md`; se eliminó `prompt/` | Repositorio |
 | A17 | Las políticas de la ficha técnica §5 se guardaban en Cloud Storage, pero el stack exige que no haya estado en disco | Puerto «fuente de documentos» (carpeta local o `gs://`); solo la ingesta lee | PROMPT_SPEC «Integración» |
+| A18 | El PDF de la ficha (V1, en `docs/otros/`) describía el alcance antiguo: Google Sheets, Loyverse, comanda impresa, n8n, ML y domicilios | Se regeneró desde el README actual y se movió a `docs/proyecto-12-del-chat-a-la-comanda.pdf`; la V1 se borró (22 Nov 2026) | `docs/` |
 
 ## B. Ambigüedades del alcance
 

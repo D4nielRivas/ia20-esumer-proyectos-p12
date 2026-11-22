@@ -4,6 +4,8 @@
 
 **Panadería Tomasseli · Alimentos y restaurantes**
 
+📄 [Ficha en PDF](docs/proyecto-12-del-chat-a-la-comanda.pdf) · 🛠️ [Ficha técnica](docs/ficha-tecnica.md)
+
 | Dificultad | Solución | Base de datos | Orquestación |
 |---|---|---|---|
 | ★★★ | Chatbot de menú y pedidos (LLM + reglas + RAG de políticas) | PostgreSQL en GCP | n8n, etapas posteriores |
@@ -515,8 +517,8 @@ El equipo trabaja en su propio repositorio, `ia20-esumer-proyectos-p12`, con la 
 ia20-esumer-proyectos-p12/
 ├── README.md         # Esta ficha: problema, alcance, equipo y estado de avance
 ├── PROMPT_SPEC.md    # Prompt con el que se genera la spec con Spec Kit
-├── docs/             # Lo que produce el equipo: ficha técnica, análisis de consistencia, informes, presentaciones y guion del demo
-│   └── otros/        # Referencias históricas (especificación v1.2, PDF V1) y apuntes; no son fuente de la spec
+├── docs/             # Lo que produce el equipo: esta ficha en PDF, ficha técnica, análisis de consistencia, informes, presentaciones y guion del demo
+│   └── otros/        # Referencias históricas (especificación v1.2) y apuntes; no son fuente de la spec
 ├── insumos/          # Lo que el equipo recibe: CSV del menú y políticas de la panadería (insumos/politicas/)
 ├── .specify/ y specs/  # Aparecen al correr Spec Kit
 └── src/ y tests/       # Aparecen al implementar

@@ -35,7 +35,7 @@ En esta sesión SOLO se crean los artefactos de la spec. No escribas código de 
 2. docs/ficha-tecnica.md: qué va y qué no va al RAG (§2), principios propios (§3), specs e historias H-1 a H-8 (§4), pruebas locales (§5), servicios de GCP (§6), guion del Demo (§7) y cronograma (§8).
 3. docs/analisis_consistencia_p12.md: por qué se tomó cada decisión. Úsalo para justificar; no reabras lo que ya está resuelto.
 4. insumos/: categorias_menu.csv, catalogo_items.csv, menus_diarios.csv y detalle_menu_dia.csv (plantilla semanal del menú) e insumos/politicas/*.md (base de conocimiento del RAG, borradores v0.1 con metadatos de vigencia en el encabezado).
-NO son fuente: docs/otros/ (la especificación v1.2 histórica, con Google Sheets, Loyverse, n8n, Gmail, ML y domicilios, superada por el README; el PDF V1; los apuntes de git).
+NO son fuente: docs/otros/ (la especificación v1.2 histórica, con Google Sheets, Loyverse, n8n, Gmail, ML y domicilios, superada por el README; los apuntes de git). docs/proyecto-12-del-chat-a-la-comanda.pdf es la misma ficha del README en PDF: no la leas como fuente aparte.
 Lee las fuentes antes de especificar. Si encuentras un conflicto que el README no resuelva, no lo resuelvas en silencio: regístralo en la sección «Conflictos detectados» de la spec, con la decisión tomada.
 
 # Paso 0 · Preparar el entorno (raíz del repo del proyecto)

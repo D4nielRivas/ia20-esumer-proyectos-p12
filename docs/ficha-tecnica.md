@@ -2,7 +2,7 @@
 
 **Ficha técnica: RAG, Spec Kit y Google Cloud** · IA Aplicada y Automatización de Procesos con IA Generativa (IA20) · Esumer
 
-📋 [Ficha de especificación](../README.md) · 📄 [Ficha en PDF (V1, histórica)](otros/V1%20proyecto-12-del-chat-a-la-comanda.pdf) · 🧭 [Análisis de consistencia](analisis_consistencia_p12.md) · 📐 [Prompt de la spec](../PROMPT_SPEC.md)
+📋 [Ficha de especificación](../README.md) · 📄 [Ficha en PDF](proyecto-12-del-chat-a-la-comanda.pdf) · 🧭 [Análisis de consistencia](analisis_consistencia_p12.md) · 📐 [Prompt de la spec](../PROMPT_SPEC.md)
 
 Esta ficha resume **cómo se construye el proyecto** en la etapa final del curso: cómo se organiza el repositorio, qué parte resuelve un RAG, qué principios propios lleva la constitución de Spec Kit, qué specs e historias se escriben, cómo se prueba en local, qué se despliega en Google Cloud y cómo se presenta en el Demo. El **qué y el porqué** del proyecto (necesidades, requisitos, reglas, modelo de datos y flujo) siguen en la [ficha de especificación](../README.md). Si esta ficha y el README difieren, manda el README.
 
@@ -28,8 +28,8 @@ Esta ficha resume **cómo se construye el proyecto** en la etapa final del curso
 ia20-esumer-proyectos-p12/
 ├── README.md         # Ficha de especificación
 ├── PROMPT_SPEC.md    # Prompt con el que se genera la spec (Prompt 1 de Spec Kit)
-├── docs/             # Esta ficha, análisis de consistencia, informes y material del demo
-│   └── otros/        # Referencias históricas: especificación v1.2 y PDF V1 (no son fuente)
+├── docs/             # Esta ficha, la ficha de especificación en PDF, análisis de consistencia, informes y material del demo
+│   └── otros/        # Referencias históricas: especificación v1.2 (no es fuente)
 ├── insumos/          # CSV del menú (plantilla semanal) y políticas (insumos/politicas/)
 ├── .specify/ y specs/  # Spec Kit
 └── src/ y tests/       # Implementación (Prompt 2)
