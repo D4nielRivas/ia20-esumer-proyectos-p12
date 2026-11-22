@@ -110,8 +110,8 @@ Las metas de la ficha (README §1.7) se registran en `docs/informes/evaluacion_l
 - Se especifica en `specs/002-despliegue-gcp/`; la escribe el equipo y la ejecuta el docente.
 - Artifact Registry, repositorio `ia20`, con la imagen.
 - Cloud SQL for PostgreSQL 16 (db-f1-micro) + pgvector (menú, pedidos, conversaciones, alertas, bitácora, fragmentos de políticas y previsión).
-- Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Cloud Storage (documentos de políticas que lee la ingesta) · Secret Manager.
-- WhatsApp Business API (o su entorno de prueba), con webhook `/webhook/whatsapp`, y Google Forms que llaman a `/formularios/menu`.
+- Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Secret Manager. Sin Cloud Storage: las políticas viajan dentro de la imagen.
+- Canal y formularios: los mismos que en local (simulador de WhatsApp y formularios de Streamlit contra `/webhook/whatsapp` y `/formularios/menu`). WhatsApp Business real y Google Forms quedan para la spec 003.
 - n8n Cloud o n8n en Cloud Run: **no aplica** mientras el docente apruebe el recorte de n8n (`recortes_p12.md`).
 
 El equipo entrega la imagen probada en local con lo que exige la Fase 1 (ver `PROMPT_SPEC.md`, sección «Integración»). El docente despliega con el equipo presente y borra todo el mismo día, incluida la instancia de Cloud SQL, con evidencia en `docs/informes/despliegue` y `docs/informes/borrado`. Es el despliegue más complejo: el docente lo ensaya antes de la sesión.

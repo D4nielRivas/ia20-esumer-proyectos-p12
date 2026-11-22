@@ -507,7 +507,9 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 | Tema | Decisión |
 |---|---|
 | Alojamiento de PostgreSQL | PostgreSQL 16 + pgvector en Docker en local; Cloud SQL en GCP, desplegado y borrado el mismo día por el docente |
-| Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`); en local, pantallas de Streamlit que simulan el Form |
+| Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`). En esta fase, en local y en la nube, son pantallas de Streamlit; Google Forms queda para la spec 003 |
+| Canal en esta fase | Simulador de WhatsApp con el formato de WhatsApp Cloud API, en local y en la nube; WhatsApp Business real queda para la spec 003 |
+| Librerías del back | psycopg 3 con `schema.sql` (sin ORM ni migraciones) y `httpx` directo a Ollama, Gemini y Vertex con validación Pydantic (sin frameworks de LLM). Las políticas viajan dentro de la imagen (sin Cloud Storage) |
 | Servicio propio del chatbot | FastAPI en una imagen Docker; en local con `uvicorn` y en GCP en Cloud Run (escala a cero). La carga manual por el operador queda solo como contingencia (plan B) |
 | Visualización para cocina | Pantalla de Streamlit que lee `GET /cocina/pedidos` (sobre `v_pedidos_operativa`): ID, hora de recogida, modalidad, almuerzos con sus líneas y notas. Sin alérgenos en esta fase |
 | Categorías y opciones | ME (Menú Especial), MS (Menú Sencillo), SP (Sopa) y JG (Jugo Natural), según `insumos/`; cada día ofrece 2 o 3 de ME, 4 de MS, 3 o 4 de SP y 3 de JG |

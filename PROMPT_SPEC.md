@@ -184,7 +184,8 @@ Metas del set: citas válidas 100 % en las de documento, «no lo encuentro» ≥
   - GET /resumen-diario, GET /prevision y POST /evaluar.
   Cada ruta queda en contracts/ con su JSON de entrada y de salida.
 - Datos: PostgreSQL 16 + pgvector con docker compose, con las tablas del README §3.2.
-- IA: LLM detrás de un adaptador (Ollama qwen2.5:3b; API de Gemini gemini-3.1-flash-lite con tope; Vertex AI en GCP) y embeddings bge-m3 (siempre locales en la Fase 1; no se pagan).
+- Acceso a datos: psycopg 3 con SQL explícito. El esquema vive en un schema.sql que reproduce el README §3.2 (tablas, PK, FK, UNIQUE, CHECK y vistas) y que la ingesta aplica si no existe. Sin ORM ni herramienta de migraciones (nada de SQLAlchemy, SQLModel ni Alembic).
+- IA: LLM detrás de un adaptador (Ollama qwen2.5:3b; API de Gemini gemini-3.1-flash-lite con tope; Vertex AI en GCP) y embeddings bge-m3 (siempre locales en la Fase 1; no se pagan). Las llamadas se hacen con httpx directo a la API de cada proveedor (salida estructurada de Ollama y response_schema de Gemini), validadas con Pydantic; en el perfil gcp, google-auth da el token de Vertex. Sin LangChain, LlamaIndex ni otro framework de LLM.
 - Modelo de ML: regresión en Python con scikit-learn para la previsión, solo informativa. Se entrena con uv run comanda entrenar, se guarda con joblib en app/models/vN/ y FastAPI la carga una sola vez y la sirve en GET /prevision (decisión del docente, 22 Nov 2026: los modelos van dentro de FastAPI).
 - Comando de ingesta: uv run comanda ingestar --limpiar.
 - Fase 2, GCP (spec 002; la ejecuta el docente):
@@ -192,8 +193,8 @@ Metas del set: citas válidas 100 % en las de documento, «no lo encuentro» ≥
   - Cloud Run del front en Streamlit: mínimo 0 instancias, con API_URL apuntando al servicio de FastAPI.
   - Cloud Run Job de ingesta con la misma imagen. La previsión no lleva Cloud Run Job: la sirve FastAPI.
   - Cloud SQL PostgreSQL 16 (db-f1-micro) + pgvector.
-  - Vertex AI (Gemini Flash y text-multilingual-embedding-002), Cloud Storage para las políticas, Secret Manager y Artifact Registry.
-  - WhatsApp Business API (o su entorno de prueba) y Google Forms que llaman a POST /formularios/menu.
+  - Vertex AI (Gemini Flash y text-multilingual-embedding-002), Secret Manager y Artifact Registry. Sin Cloud Storage: las políticas viajan dentro de la imagen.
+  - Canal y formularios: los mismos que en local, el simulador de WhatsApp en Streamlit y los formularios de Streamlit contra POST /webhook/whatsapp y POST /formularios/menu. WhatsApp Business real y Google Forms quedan para la spec 003.
 - Fuera de esta fase (márcalo «NA» en la spec, no lo omitas): n8n, reintentos con espera incremental y colas, envío del resumen por Gmail, Loyverse TPV, domicilios, pagos en línea, alérgenos por plato, validación de la gestión de cocina y RNF2.
 
 # Integración: local con el equipo ahora, despliegue en GCP con el docente al final
@@ -206,10 +207,10 @@ Stack común (local → GCP, cambiando solo la configuración RAG_PERFIL=local|g
 - Base relacional + vectorial: PostgreSQL 16 + pgvector con docker compose → Cloud SQL PostgreSQL 16 + pgvector.
 - LLM: Ollama qwen2.5:3b (7b o 1.5b según la RAM), nativo en el portátil (no dentro de Docker, para usar la GPU del Mac) y accesible desde los contenedores por OLLAMA_URL; API de Gemini solo para la evaluación final y el Demo → Vertex AI Gemini Flash.
 - Embeddings: Ollama bge-m3 (dimensión 1024) → text-multilingual-embedding-002 (dimensión 768).
-- Documentos de políticas: insumos/base_conocimiento/ → bucket de Cloud Storage; solo la ingesta los lee.
+- Documentos de políticas: insumos/base_conocimiento/ → la misma carpeta dentro de la imagen; solo la ingesta los lee.
 - Ingesta: uv run comanda ingestar --limpiar → Cloud Run Job con la misma imagen y el mismo comando.
-- Canal WhatsApp: simulador local con el formato de WhatsApp Cloud API → WhatsApp Business API.
-- Formularios: pantallas de Streamlit en local → Google Forms, contra el mismo endpoint.
+- Canal WhatsApp: simulador con el formato de WhatsApp Cloud API → el mismo simulador en la nube (WhatsApp Business real, en la spec 003).
+- Formularios: pantallas de Streamlit → las mismas en la nube, contra el mismo endpoint (Google Forms, en la spec 003).
 - Configuración: .env leído con pydantic-settings → variables de entorno del despliegue.
 - Secretos: .env (nunca en Git) → Secret Manager.
 - Modelo tabular: regresión de scikit-learn entrenada con uv run comanda entrenar, guardada en app/models/vN/ y cargada por FastAPI, que escribe en prediccion_pedidos → el mismo modelo dentro de la imagen de FastAPI.
@@ -221,8 +222,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - LLM: llm_ollama / llm_gemini / llm_vertex;
    - embeddings: emb_ollama / emb_vertex;
    - base: URL local / socket de Cloud SQL;
-   - canal: whatsapp_simulador / whatsapp_cloud;
-   - fuente de documentos: carpeta local / gs://;
+   - canal: whatsapp_simulador (whatsapp_cloud queda para la spec 003; la interfaz lo permite, pero no se implementa ahora);
    - reloj: inyectable, para probar la ventana con fecha y hora simuladas.
 2. Toda la configuración por variables de entorno, con .env.example completo y documentado y sin secretos. Incluye:
    - RAG_PERFIL, PORT, DATABASE_URL, API_URL, API_KEY, OLLAMA_URL y RAG_EMBED_DIM;
@@ -298,7 +298,7 @@ Cómo hacer cada paso:
 - Todo en español.
 
 # Puertas y parada
-- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, quitar Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Lo demás decídelo y regístralo.
+- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, quitar Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Tampoco agregues un ORM, una herramienta de migraciones, un framework de LLM, Cloud Storage, WhatsApp real ni Google Forms sin preguntarme. Lo demás decídelo y regístralo.
 - Termina después de /speckit-analyze de la spec 002. No escribas código de la aplicación. El entregable es solo .claude/, CLAUDE.md, .specify/memory/constitution.md, specs/001-chat-y-politicas-local/ y specs/002-despliegue-gcp/ (spec, plan, research, data-model, contracts, quickstart, tasks y checklists).
 - No ejecutes /speckit-implement, no hagas push ni despliegues en GCP.
 
