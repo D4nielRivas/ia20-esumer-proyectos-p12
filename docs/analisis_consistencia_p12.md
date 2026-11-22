@@ -37,18 +37,37 @@ Registro de las inconsistencias encontradas entre `README.md`, `docs/ficha-tecni
 | B4 | Política de cancelación | Antes de confirmar, en la conversación; después, solo con el operador y sin penalidad |
 | B5 | Medios de pago | Al recoger: efectivo, tarjeta o transferencia (Nequi o Daviplata); el bot no cobra |
 | B6 | Retención de datos (Ley 1581) | Pedidos 90 días y conversaciones 30, configurables |
-| B7 | Alérgenos: la ficha los mostraba, pero los insumos no los traen | Fuera de esta fase; se quitaron del modelo y de la vista de cocina |
+| B7 | Alérgenos: la ficha los mostraba, pero los insumos no los traen | Fuera de esta fase; se quitaron del modelo y de la vista de cocina. **Revisado el 22 Nov (D3):** política general en el RAG y escalamiento a una persona |
 | B8 | RNF2 (99 % mensual) frente a un despliegue que escala a cero y se borra el mismo día | RNF2 retirado; el número se conserva para no alterar las referencias |
 | B9 | RNF1 (≤ 10 s) frente al arranque en frío | Se mide en caliente; el arranque en frío se documenta aparte |
 | B10 | Existencias por opción, por ingrediente o por conteo | Disponibilidad booleana por opción y fecha; cupo opcional |
 | B11 | `es_fijo` sin definir | Es informativo: la opción se repite todos los días |
 | B12 | `insumos/menus_diarios` (duplicado sin cabecera) y `Comandos útiles.csv` (apuntes de git) dentro de insumos | El duplicado se borró; los apuntes se movieron a `docs/otros/` |
-| B13 | No había documentos de políticas para el RAG | Se escribieron cuatro borradores v0.1 en `insumos/politicas/` para que Tomasseli los valide |
+| B13 | No había documentos de políticas para el RAG | Se escribieron cuatro borradores v0.1 para que Tomasseli los valide; el 22 Nov se sumaron alérgenos y aviso de privacidad (seis en total, en `insumos/base_conocimiento/`) |
 | B14 | ¿Ollama cuenta como «proveedor aprobado»? | Sí, para el perfil local; Vertex AI para el perfil gcp |
 | B15 | La vista de cocina en la nube necesita acceso protegido | La página pide la `X-API-Key` y la envía sin guardarla; cocina solo lee |
 
 ## C. Pendientes (no los resuelve el equipo)
 
-- Validar con Tomasseli los borradores de `insumos/politicas/`, los precios vigentes, los responsables de cada Form y del resumen diario, y el responsable de privacidad.
-- Confirmar con el docente que el despliegue en GCP lo hace el docente (A11).
-- Construir los sets de prueba (30 conversaciones y 15 preguntas): los define la spec y los construyen las tareas.
+- Validar con Tomasseli los borradores de `insumos/base_conocimiento/`, los precios vigentes, los responsables de cada Form y del resumen diario, y el responsable de privacidad.
+- Aprobación del docente para los recortes de `docs/recortes_p12.md` (n8n, precios y alérgenos por plato).
+- Historial real de pedidos para reemplazar el sintético de la previsión.
+
+## D. Revisión del docente (22 Nov 2026)
+
+Fuentes: `contenido-ia20-esumer/projects/guias/4_propuestas_proyectos.pdf`, `implementacion_proyectos.md` y el prompt de referencia de P12 (`seleccionados/proyecto-12-del-chat-a-la-comanda/PROMPT_SPEC.md`). El docente revisó el repo en su estado del 21 Nov (carpetas `Docs/` e `Insumos/`, prompt en `prompt/`, sin políticas), así que varios pendientes ya estaban resueltos.
+
+| # | Qué pide el docente | Estado antes | Decisión del equipo | Dónde quedó |
+|---|---|---|---|---|
+| D1 | `PROMPT_SPEC.md` en la raíz, rama `main`, Paso 0 apuntando al repo del equipo, `docs/` e `insumos/` en minúscula | Ya cumplido el 21 Nov (A15, A16) | Paso 0 apunta a `D4nielRivas/ia20-esumer-proyectos-p12` y verifica `main` | PROMPT_SPEC |
+| D2 | Base de conocimiento en `insumos/base_conocimiento/` (guía general); el prompt de referencia de P12 usa `insumos/politicas/` | `insumos/politicas/` | `insumos/base_conocimiento/`, como la guía general | Todo el repo |
+| D3 | RAG con alérgenos por producto y aviso de privacidad («faltan alérgenos y políticas») | Cuatro políticas, sin alérgenos ni privacidad | `05_alergenos.md` (política general, sin datos por plato) y `06_aviso_privacidad.md` (borrador v0.1); las preguntas de alérgenos de un plato y de datos personales se escalan (R16) | `insumos/base_conocimiento/`, README R16, P-19 |
+| D4 | Set de prueba con los 4 tipos (documento, fuera de alcance, sensible y trampa), mínimo 15, cada una con su documento esperado («falta el tipo sensible») | No existía | 18 preguntas (6, 4, 4 y 4) y las 30 conversaciones de la ficha técnica, validadas contra el menú de cada día | `insumos/preguntas_politicas.jsonl`, `insumos/conversaciones_prueba.jsonl` |
+| D5 | Previsión de pedidos por regresión por lote («Regresión en NA» marcada como recorte en discusión) | NA | Se reincorpora como H-9, de menor prioridad: día siguiente, franjas de 30 minutos y opción; historial sintético de 12 semanas (10 + 2, corte cronológico); `GET /prevision` y resumen diario | README RF13, R17, §2.5, P-18; ficha técnica §4 |
+| D6 | n8n + WhatsApp + Loyverse (recorte en discusión) | Back propio | Se mantiene el back propio y se documenta como recorte pendiente | `docs/recortes_p12.md` |
+| D7 | Precios: el prompt de referencia los trata como cambio de alcance | Precios informativos | Se mantienen y se documentan como recorte pendiente | `docs/recortes_p12.md` |
+| D8 | API de Gemini para P12 (tope de 1 USD), con caché, contador `uso_llm`, temperatura 0 y máximo 400 tokens, solo para la evaluación final y el Demo | No estaba | Adaptador `LLM_PROVEEDOR=ollama|gemini`, tablas `uso_llm` y `cache_llm`, regla R18 | README §3.2, R18, §3.4; PROMPT_SPEC |
+| D9 | Despliegue: lo hace el docente; la spec 003 la entrega el docente | «No hay spec 003» | El docente entrega `specs/003-despliegue-gcp/`; Cloud Run con máximo 2 instancias, db-f1-micro, Artifact Registry, us-central1 y 10 USD | Ficha técnica §4 y §6 |
+| D10 | Evaluación en `docs/informes/evaluacion_local`; comandos locales en una sección nueva del README; commits «p12-spec:» solo con archivos de la spec | `informes/`, `docs/ejecucion_local.md`, «p12:» | Se alinea con el docente | PROMPT_SPEC, ficha técnica |
+| D11 | Cronograma: spec hasta el 22 Nov, local del 23 al 29 Nov, Google Cloud del 30 Nov al 6 Dic, `v1.0-demo` el 12 Dic y Demo el 13 Dic | Fechas anteriores | Se actualiza | Ficha técnica §8 |
+| D12 | Contrato de rutas escrito, con JSON de entrada y salida | Rutas listadas sin JSON | La spec lo deja en `contracts/` (el prompt lo exige) | PROMPT_SPEC |
