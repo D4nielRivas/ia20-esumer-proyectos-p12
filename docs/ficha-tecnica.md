@@ -108,7 +108,8 @@ Las metas de la ficha (README §1.7) se registran en `docs/informes/evaluacion_l
 
 - Cloud Run: dos servicios, `chat-a-la-comanda` (FastAPI con el modelo de previsión dentro, `PORT` 8080, mínimo 0 y máximo 2 instancias, `X-API-Key`) y el front en Streamlit (mínimo 0), y un Cloud Run Job de ingesta con la misma imagen. La previsión no lleva Cloud Run Job: la sirve FastAPI.
 - Se especifica en `specs/002-despliegue-gcp/`; la escribe el equipo y la ejecuta el docente.
-- Artifact Registry, repositorio `ia20`, con la imagen.
+- Artifact Registry, repositorio `ia20`, con la imagen. Se construye en el portátil con `docker buildx build --platform linux/amd64` (el Mac es ARM), se sube con `docker push` y se despliega con `gcloud run deploy --image`. No se usan `--source` ni Cloud Build, que suben el código a un bucket.
+- **Nada en Cloud Storage:** políticas, CSV, historial y modelo van en la imagen; los datos, en Cloud SQL; las evidencias, en `docs/informes/`.
 - Cloud SQL for PostgreSQL 16 (db-f1-micro) + pgvector (menú, pedidos, conversaciones, alertas, bitácora, fragmentos de políticas y previsión).
 - Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Secret Manager. Sin Cloud Storage: las políticas viajan dentro de la imagen.
 - Canal y formularios: los mismos que en local (simulador de WhatsApp que llama Streamlit, con el formato de WhatsApp Cloud API, y formularios de Streamlit contra `/webhook/whatsapp` y `/formularios/menu`). La firma del webhook solo se cubre con una prueba unitaria. WhatsApp Business real y Google Forms quedan para la spec 003.

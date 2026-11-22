@@ -193,7 +193,8 @@ Metas del set: citas válidas 100 % en las de documento, «no lo encuentro» ≥
   - Cloud Run del front en Streamlit: mínimo 0 instancias, con API_URL apuntando al servicio de FastAPI.
   - Cloud Run Job de ingesta con la misma imagen. La previsión no lleva Cloud Run Job: la sirve FastAPI.
   - Cloud SQL PostgreSQL 16 (db-f1-micro) + pgvector.
-  - Vertex AI (Gemini Flash y text-multilingual-embedding-002), Secret Manager y Artifact Registry. Sin Cloud Storage: las políticas viajan dentro de la imagen.
+  - Vertex AI (Gemini Flash y text-multilingual-embedding-002), Secret Manager y Artifact Registry. Sin Cloud Storage: las políticas, los CSV, el historial y el modelo viajan dentro de la imagen.
+  - Construcción de la imagen: docker buildx build --platform linux/amd64 en el portátil (el Mac es ARM y Cloud Run necesita amd64), docker push a Artifact Registry y gcloud run deploy --image. Nunca gcloud run deploy --source ni gcloud builds submit: suben el código a un bucket de Cloud Storage.
   - Canal y formularios: los mismos que en local, el simulador de WhatsApp en Streamlit y los formularios de Streamlit contra POST /webhook/whatsapp y POST /formularios/menu. WhatsApp Business real y Google Forms quedan para la spec 003.
 - Fuera de esta fase (márcalo «NA» en la spec, no lo omitas): n8n, reintentos con espera incremental y colas, envío del resumen por Gmail, Loyverse TPV, domicilios, pagos en línea, alérgenos por plato, validación de la gestión de cocina y RNF2.
 
@@ -256,7 +257,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
 Entrega del equipo antes de la sesión de despliegue con el docente (inclúyela como criterio de aceptación de H-7 en la spec 001 y como prerrequisito de H-8 en la spec 002):
 - README.md con una sección nueva de comandos para levantarlo en local, sin borrar la ficha del proyecto.
 - .env.example con todas las variables de los dos perfiles.
-- Dockerfile y .gcloudignore, con la imagen probada en local (docker build + docker run) para FastAPI y para Streamlit (en el plan se decide si es una imagen con dos comandos o dos imágenes; regístralo en research.md).
+- Dockerfile y .dockerignore, con la imagen construida para linux/amd64 y probada en local (docker buildx build --platform linux/amd64 + docker run) para FastAPI y para Streamlit (en el plan se decide si es una imagen con dos comandos o dos imágenes; regístralo en research.md).
 - Comando de ingesta que crea el esquema si no existe y carga solo el menú y las políticas vigentes.
 - GET /salud funcionando y pruebas en verde.
 - docs/informes/evaluacion_local con las metas cumplidas («sin metas cumplidas no hay nube»).
@@ -299,7 +300,7 @@ Cómo hacer cada paso:
 - Todo en español.
 
 # Puertas y parada
-- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, quitar Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Tampoco agregues un ORM, una herramienta de migraciones, un framework de LLM, Cloud Storage, WhatsApp real ni Google Forms sin preguntarme. Lo demás decídelo y regístralo.
+- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, quitar Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Tampoco agregues un ORM, una herramienta de migraciones, un framework de LLM, Cloud Storage (ni builds con --source o Cloud Build), WhatsApp real ni Google Forms sin preguntarme. Lo demás decídelo y regístralo.
 - Termina después de /speckit-analyze de la spec 002. No escribas código de la aplicación. El entregable es solo .claude/, CLAUDE.md, .specify/memory/constitution.md, specs/001-chat-y-politicas-local/ y specs/002-despliegue-gcp/ (spec, plan, research, data-model, contracts, quickstart, tasks y checklists).
 - No ejecutes /speckit-implement, no hagas push ni despliegues en GCP.
 
