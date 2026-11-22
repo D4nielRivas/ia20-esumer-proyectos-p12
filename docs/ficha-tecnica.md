@@ -71,7 +71,7 @@ El archivo `.specify/memory/constitution.md` parte de los **7 principios comunes
 |---|---|---|
 | `specs/001-chat-y-politicas-local/` | Todo lo local en una spec. **Parte A:** servicio de políticas que el chatbot consulta cuando la intención es `consulta_politica`; escala a una persona las preguntas sensibles; no responde menú, disponibilidad, precios ni pedidos. **Parte B:** servicio propio del chatbot (sin n8n) y su capa de datos: esquema de PostgreSQL con restricciones y vistas, generación del menú del día desde la plantilla semanal, Forms de menú y agotados, conversación por WhatsApp con las validaciones, registro idempotente en `pedidos` y `detalle_pedido`, `pedidos` y `alertas` para cocina, operador, resumen diario en `v_resumen_diario` y previsión de pedidos servida por FastAPI. Front en Streamlit. | H-1 a H-7 y H-9 |
 | `specs/002-despliegue-gcp/` | Despliegue en Google Cloud de la misma imagen, a partir de la spec de despliegue del ejemplo del curso, con `CODIGO_PROYECTO=p12` y el servicio `chat-a-la-comanda`. **La especifica el equipo** (spec, plan y tareas) en la sesión del Prompt 1; **el despliegue lo ejecuta el docente**. El equipo deja listos el Dockerfile, `.env.example` e `infra/humo.jsonl`. | H-8 |
-| `specs/003-automatizacion/` | **Opcional; por ahora no va** y no se crea en la sesión del Prompt 1: canal real de WhatsApp Business y orquestación (n8n o servicio propio, por definir), Loyverse y avisos. | — |
+| `specs/003-automatizacion/` | **Opcional; por ahora no va** y no se crea en la sesión del Prompt 1: canal real de WhatsApp Business (con la firma `X-Hub-Signature-256` activa) y orquestación (n8n o servicio propio, por definir), Loyverse y avisos. | — |
 
 Orden y nombres según la guía de implementación del curso (22 Nov 2026).
 
@@ -111,7 +111,7 @@ Las metas de la ficha (README §1.7) se registran en `docs/informes/evaluacion_l
 - Artifact Registry, repositorio `ia20`, con la imagen.
 - Cloud SQL for PostgreSQL 16 (db-f1-micro) + pgvector (menú, pedidos, conversaciones, alertas, bitácora, fragmentos de políticas y previsión).
 - Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Secret Manager. Sin Cloud Storage: las políticas viajan dentro de la imagen.
-- Canal y formularios: los mismos que en local (simulador de WhatsApp y formularios de Streamlit contra `/webhook/whatsapp` y `/formularios/menu`). WhatsApp Business real y Google Forms quedan para la spec 003.
+- Canal y formularios: los mismos que en local (simulador de WhatsApp que llama Streamlit, con el formato de WhatsApp Cloud API, y formularios de Streamlit contra `/webhook/whatsapp` y `/formularios/menu`). La firma del webhook solo se cubre con una prueba unitaria. WhatsApp Business real y Google Forms quedan para la spec 003.
 - n8n Cloud o n8n en Cloud Run: **no aplica** mientras el docente apruebe el recorte de n8n (`recortes_p12.md`).
 
 El equipo entrega la imagen probada en local con lo que exige la Fase 1 (ver `PROMPT_SPEC.md`, sección «Integración»). El docente despliega con el equipo presente y borra todo el mismo día, incluida la instancia de Cloud SQL, con evidencia en `docs/informes/despliegue` y `docs/informes/borrado`. Es el despliegue más complejo: el docente lo ensaya antes de la sesión.

@@ -94,7 +94,7 @@ Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos
     - H-9 Previsión de pedidos (menor prioridad).
   En local, la conversación se prueba con el simulador del webhook y una vista de chat en Streamlit.
 - specs/002-despliegue-gcp/: H-8 Fase 2 (GCP). La misma imagen en Google Cloud con RAG_PERFIL=gcp, CODIGO_PROYECTO=p12 y el servicio chat-a-la-comanda, a partir de la spec de despliegue del ejemplo del curso. Se especifica en esta sesión (spec, plan y tareas), pero el despliegue lo ejecuta el docente; depende de que H-1 a H-7 pasen la evaluación local.
-- specs/003-automatizacion/ es OPCIONAL y NO se crea en esta sesión: WhatsApp Business real, orquestación (n8n o servicio propio, por definir), Loyverse y avisos.
+- specs/003-automatizacion/ es OPCIONAL y NO se crea en esta sesión: WhatsApp Business real (con el token de verificación del webhook y la firma X-Hub-Signature-256 activa), orquestación (n8n o servicio propio, por definir), Loyverse y avisos.
 - Usa exactamente estos identificadores. Orden de implementación: Setup, H-1 a H-7, H-9 (spec 001) y H-8 (spec 002). Antes de H-1, la fase de Setup de tasks.md deja la fundación común: perfiles .env, puertos y adaptadores, Dockerfile, /salud, docker compose y el esquema base.
 
 # Contexto del problema
@@ -229,7 +229,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - las claves de API por perfil: API_KEY_FORMULARIOS, API_KEY_COCINA, API_KEY_OPERADOR y API_KEY_ADMIN;
    - TZ_NEGOCIO, MARGEN_PREPARACION_MIN, RETENCION_PEDIDOS_DIAS y RETENCION_CONVERSACIONES_DIAS;
    - LLM_PROVEEDOR, LLM_MODELO, LLM_TOPE_USD, LLM_TEMPERATURA, GEMINI_API_KEY (vacía) y los timeouts de RNF1;
-   - los tokens de WhatsApp.
+   - WHATSAPP_APP_SECRET (vacía en esta fase; solo la usan la prueba unitaria de la firma y, más adelante, la spec 003).
    Nada de rutas absolutas, URLs, números de WhatsApp ni claves en el código.
 3. Dockerfile desde la fase local. La app escucha en la variable PORT (8080 en la nube) y se prueba con docker run antes de entregar.
 4. Sin estado en disco ni en memoria: Cloud Run borra el disco y puede tener varias instancias. Las conversaciones, la pausa del bot, la deduplicación, la caché, el gasto del LLM y la previsión van a PostgreSQL; el menú y las políticas se cargan con la ingesta. El modelo entrenado viaja dentro de la imagen (app/models/vN/) y solo se lee.
@@ -238,7 +238,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
 7. Contrato común igual en los dos perfiles:
    - GET /salud sin clave: perfil, estado de la base, modelos, número de fragmentos, opciones del menú de hoy y versiones de la app, de P1, de P2 y del modelo de previsión.
    - Las demás rutas, salvo el webhook, piden la cabecera X-API-Key (401 si falta). Streamlit pide la clave y la envía sin guardarla en disco.
-   - El webhook verifica su token y la firma X-Hub-Signature-256 en el perfil gcp.
+   - El webhook recibe el mismo formato de WhatsApp Cloud API en local y en la nube; lo envía el simulador que llama Streamlit. La verificación de la firma X-Hub-Signature-256 queda como una función cubierta solo por una prueba unitaria (firma válida, inválida y ausente); no se activa contra tráfico real hasta la spec 003.
    - Errores 422 y 503 como {"error","detalle"}.
    - El JSON de salida no cambia entre local y gcp.
 8. RNF1: si el LLM o la base no responden dentro del umbral, se informa al cliente, se deriva al operador y nunca se confirma.

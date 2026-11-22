@@ -508,7 +508,7 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 |---|---|
 | Alojamiento de PostgreSQL | PostgreSQL 16 + pgvector en Docker en local; Cloud SQL en GCP, desplegado y borrado el mismo día por el docente |
 | Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`). En esta fase, en local y en la nube, son pantallas de Streamlit; Google Forms queda para la spec 003 |
-| Canal en esta fase | Simulador de WhatsApp con el formato de WhatsApp Cloud API, en local y en la nube; WhatsApp Business real queda para la spec 003 |
+| Canal en esta fase | Simulador de WhatsApp que llama Streamlit, con el formato de WhatsApp Cloud API, en local y en la nube. La firma `X-Hub-Signature-256` solo se cubre con una prueba unitaria; WhatsApp Business real y la firma activa quedan para la spec 003 |
 | Roles de PostgreSQL | Tres: `p12_admin`, `p12_app` y `p12_cocina` (solo lectura). Los cinco perfiles (chatbot, Forms, cocina, operador y administración) se separan con claves de API por perfil en FastAPI (22 Nov 2026) |
 | Librerías del back | psycopg 3 con `schema.sql` (sin ORM ni migraciones) y `httpx` directo a Ollama, Gemini y Vertex con validación Pydantic (sin frameworks de LLM). Las políticas viajan dentro de la imagen (sin Cloud Storage) |
 | Servicio propio del chatbot | FastAPI en una imagen Docker; en local con `uvicorn` y en GCP en Cloud Run (escala a cero). La carga manual por el operador queda solo como contingencia (plan B) |
