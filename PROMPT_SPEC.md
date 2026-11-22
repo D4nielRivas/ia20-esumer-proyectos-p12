@@ -11,7 +11,7 @@ Parte de la guía 01 del curso y del prompt de referencia que el docente prepar�
 - [x] `insumos/preguntas_politicas.jsonl`: 18 preguntas de 4 tipos (documento, fuera de alcance, sensible y trampa).
 - [x] `insumos/conversaciones_prueba.jsonl`: las 30 conversaciones de la ficha técnica §5.
 - [x] `insumos/Comandos útiles.csv` fuera de `insumos/` (ahora en `docs/otros/`).
-- [ ] El historial para la previsión (`insumos/historial_pedidos.jsonl`) no existe: lo define la spec y lo genera una tarea, como dato sintético documentado.
+- [x] `insumos/historial_pedidos.jsonl`: historial sintético de 12 semanas para la previsión, generado con `scripts/generar_historial.py` (semilla fija).
 
 ## Cómo usarlo
 
@@ -58,13 +58,14 @@ En esta sesión SOLO se crean los artefactos de la spec. No escribas código de 
 5. insumos/:
    - categorias_menu.csv, catalogo_items.csv, menus_diarios.csv y detalle_menu_dia.csv: la plantilla semanal del menú;
    - base_conocimiento/*.md: la base de conocimiento del RAG, borradores v0.1 con metadatos de vigencia en el encabezado;
-   - preguntas_politicas.jsonl y conversaciones_prueba.jsonl: los sets de prueba.
+   - preguntas_politicas.jsonl y conversaciones_prueba.jsonl: los sets de prueba;
+   - historial_pedidos.jsonl: el historial sintético para la previsión (generado por scripts/generar_historial.py).
 NO son fuente: docs/otros/ (la especificación v1.2 histórica y apuntes de git). docs/proyecto-12-del-chat-a-la-comanda.pdf es la misma ficha del README en PDF.
 Lee las fuentes antes de especificar. Si encuentras un conflicto que el README no resuelva, no lo resuelvas en silencio: regístralo en la sección «Conflictos detectados» de la spec, con la decisión tomada.
 
 # Paso 0 · Preparar el entorno (raíz del repositorio del equipo)
 Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos-p12, que ya es un repositorio Git con remoto origin. Nunca hagas git init, no crees ni cambies ramas y no hagas push.
-1. Verifica que estás en la rama main y que existen README.md, PROMPT_SPEC.md, docs/ (con ficha-tecnica.md) e insumos/ en minúscula. Si faltan los cuatro CSV del menú, los documentos de insumos/base_conocimiento/ o los dos sets de prueba, detente y pídemelos.
+1. Verifica que estás en la rama main y que existen README.md, PROMPT_SPEC.md, docs/ (con ficha-tecnica.md) e insumos/ en minúscula. Si faltan los cuatro CSV del menú, los documentos de insumos/base_conocimiento/ o los dos sets de prueba o insumos/historial_pedidos.jsonl, detente y pídemelos.
 2. Si no existe .specify/, inicializa Spec Kit aquí sin git: specify init --here --integration claude --no-git. Verifica .claude/skills/speckit-* y .specify/templates; specs/ queda en la raíz.
 3. Crea CLAUDE.md en la raíz con: propósito, stack, comandos, convenciones (español, TDD, un commit por fase) y estas reglas:
    a. El README es la fuente de verdad.
@@ -136,8 +137,7 @@ Spec 002:
 7. H-6 · RF8 y RF9: derivación, pausa y reactivación del bot (tabla conversaciones); cambios y cancelaciones después de confirmar solo por el operador; alertas por falla (R6, R7); plan B sin confirmaciones falsas (P-10, P-11).
 8. H-7 · RF10: v_resumen_diario por estado, modalidad y canal, con pendientes e incidencias (P-12). Evaluación completa con insumos/conversaciones_prueba.jsonl y P-01 a P-19, con informe en docs/informes/evaluacion_local.
 9. H-9 · RF13, R17: previsión de pedidos por lote.
-   - La spec define insumos/historial_pedidos.jsonl (fecha, franja, item_id, categoria, cantidad; sin datos personales).
-   - Una tarea lo genera de forma sintética y reproducible (semilla fija), con 12 semanas, y lo documenta como dato ficticio.
+   - insumos/historial_pedidos.jsonl ya existe (fecha, franja, item_id, categoria, cantidad; sin datos personales): es sintético, de 12 semanas (30 ago a 21 nov de 2026), y lo genera scripts/generar_historial.py con semilla fija. Úsalo tal cual; la ingesta lo carga en historial_pedidos.
    - Corte cronológico: 10 semanas para entrenar y 2 para probar.
    - Se compara la regresión con la línea base. La salida va a prediccion_pedidos, GET /prevision y una sección del resumen diario (P-18).
 Los sets de prueba ya existen y los revisó el equipo: úsalos tal como están. Si encuentras un caso inconsistente con el README, regístralo en «Conflictos detectados»; no edites insumos/.
@@ -296,5 +296,5 @@ Un resumen con:
    - Docker, Ollama con qwen2.5:3b y bge-m3, y uv;
    - la key de Gemini, solo para la evaluación final;
    - insumos/base_conocimiento/ validada;
-   - el historial de pedidos, sintético o real.
+   - el historial de pedidos (ya hay uno sintético; se reemplaza si llega el real).
 ```

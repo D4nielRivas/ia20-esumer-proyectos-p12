@@ -199,7 +199,7 @@ Sí, para una tarea acotada y de menor prioridad: prever cuántos pedidos habrá
 | Elemento | Decisión |
 |---|---|
 | **Tarea** | Regresión: cantidad pedida por fecha, franja (8 franjas de 30 minutos entre 11:30 y 15:30) y opción |
-| **Datos** | `insumos/historial_pedidos.jsonl`: historial agregado sin datos personales. Hoy no existe historial real: se genera uno **sintético y reproducible** (semilla fija) de 12 semanas, documentado como dato ficticio; cuando Tomasseli entregue datos reales, se reemplaza |
+| **Datos** | `insumos/historial_pedidos.jsonl`: historial agregado sin datos personales (fecha, franja, opción, categoría y cantidad, con ceros). Como no hay historial real, es **sintético y reproducible**: lo genera `scripts/generar_historial.py` con semilla fija, del 30 ago al 21 nov de 2026 (84 días, entre 60 y 90 almuerzos al día; los festivos se comportan como domingo). Cuando Tomasseli entregue datos reales, se reemplaza con el mismo formato |
 | **Variables de entrada** | Día de la semana, franja, opción y categoría, y cantidades de semanas anteriores. Nada que solo se conozca después del día objetivo |
 | **Validación** | Corte cronológico: 10 semanas para entrenar y 2 para probar, nunca aleatorio |
 | **Línea base** | Promedio por día de la semana y franja |
@@ -563,6 +563,7 @@ ia20-esumer-proyectos-p12/
 ├── docs/             # Lo que produce el equipo: esta ficha en PDF, ficha técnica, análisis de consistencia, recortes, informes (docs/informes/), presentaciones y guion del demo
 │   └── otros/        # Referencias históricas (especificación v1.2) y apuntes; no son fuente de la spec
 ├── insumos/          # CSV del menú, base de conocimiento del RAG (insumos/base_conocimiento/), sets de prueba e historial para la previsión
+├── scripts/          # Utilidades del equipo (generar_historial.py: historial sintético de pedidos)
 ├── .specify/ y specs/  # Aparecen al correr Spec Kit
 └── src/ y tests/       # Aparecen al implementar
 ```

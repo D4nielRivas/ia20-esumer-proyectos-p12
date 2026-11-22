@@ -31,6 +31,7 @@ ia20-esumer-proyectos-p12/
 ├── PROMPT_SPEC.md    # Prompt con el que se genera la spec (Prompt 1 de Spec Kit)
 ├── docs/             # Esta ficha, la ficha de especificación en PDF, análisis de consistencia, recortes, informes (docs/informes/) y material del demo
 │   └── otros/        # Referencias históricas: especificación v1.2 (no es fuente)
+├── scripts/          # Utilidades del equipo (historial sintético de pedidos)
 ├── insumos/          # CSV del menú (plantilla semanal), base de conocimiento del RAG (base_conocimiento/), sets de prueba e historial para la previsión
 ├── .specify/ y specs/  # Spec Kit
 └── src/ y tests/       # Implementación (Prompt 2)
@@ -84,7 +85,7 @@ El número de cada historia es también su orden de implementación, salvo H-9, 
 | **H-6** Operador y plan B | 002 | Derivación, pausa y reactivación del bot, cambios y cancelaciones después de confirmar, y fallas sin confirmación falsa | P-10, P-11 |
 | **H-7** Resumen diario y evaluación final | 002 | `v_resumen_diario`, evaluación completa con `insumos/conversaciones_prueba.jsonl`, `docs/informes/evaluacion_local`, entregables de despliegue e `infra/humo.jsonl` | P-12, P-14 y metas |
 | **H-8** Fase 2 en GCP | 001 y 002 | La misma imagen en Cloud Run con el perfil `gcp`, prueba de humo y la misma evaluación contra la URL; la ejecuta el docente cuando H-1 a H-7 pasan la evaluación | Humo + evaluación |
-| **H-9** Previsión de pedidos (menor prioridad) | 002 | Historial agregado sintético de 12 semanas, línea base (promedio por día de la semana y franja), regresión con corte cronológico, `prediccion_pedidos`, `GET /prevision` y sección en el resumen diario; solo informativa | P-18 |
+| **H-9** Previsión de pedidos (menor prioridad) | 002 | Historial agregado sintético de 12 semanas (`insumos/historial_pedidos.jsonl`, generado por `scripts/generar_historial.py`), línea base (promedio por día de la semana y franja), regresión con corte cronológico, `prediccion_pedidos`, `GET /prevision` y sección en el resumen diario; solo informativa | P-18 |
 
 El guion del Demo (sección 7) queda cubierto por H-1 a H-7; la previsión (H-9) aparece en el resumen diario si está lista.
 
