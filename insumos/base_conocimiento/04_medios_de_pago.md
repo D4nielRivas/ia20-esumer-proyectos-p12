@@ -1,9 +1,9 @@
 ---
 titulo: Precios y medios de pago
 organizacion: Panadería Tomasseli
-version: 0.1
+version: 0.2
 estado: borrador pendiente de validación por Tomasseli
-vigente_desde: 2026-11-21
+vigente_desde: 2026-11-22
 responsable: por definir (administración)
 ---
 
@@ -15,7 +15,7 @@ El precio de cada almuerzo depende del plato principal (Menú Especial o Menú S
 
 ## Cuándo se paga
 
-El pedido se paga en la panadería al recogerlo. No hay pagos anticipados, y el asistente de WhatsApp no cobra ni pide datos de tarjetas o cuentas.
+El pedido para recoger se paga en la panadería al recogerlo, sin pagos anticipados. El pedido a domicilio se paga con transferencia previa por Nequi o Daviplata, que una persona del equipo confirma antes de despachar, o en efectivo al domiciliario por el valor total, incluido el cargo de $5.000 COP del domicilio (ver la política de domicilios). En ningún caso el asistente de WhatsApp cobra ni pide datos de tarjetas o cuentas.
 
 ## Medios aceptados
 
