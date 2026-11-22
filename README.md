@@ -199,13 +199,13 @@ Sí, para una tarea acotada y de menor prioridad: prever cuántos pedidos habrá
 | Elemento | Decisión |
 |---|---|
 | **Tarea** | Regresión: cantidad pedida por fecha, franja (8 franjas de 30 minutos entre 11:30 y 15:30) y opción |
-| **Datos** | `insumos/historial_pedidos.jsonl`: historial agregado sin datos personales (fecha, franja, opción, categoría y cantidad, con ceros). Como no hay historial real, es **sintético y reproducible**: lo genera `scripts/generar_historial.py` con semilla fija, del 30 ago al 21 nov de 2026 (84 días, entre 60 y 90 almuerzos al día; los festivos se comportan como domingo). Cuando Tomasseli entregue datos reales, se reemplaza con el mismo formato |
+| **Datos** | `insumos/historial_pedidos.csv`: historial agregado sin datos personales (fecha, franja, opción, categoría y cantidad, con ceros). Como no hay historial real, es **sintético y reproducible**: lo genera `scripts/generar_pedidos_sinteticos.py` con semilla fija (supuestos en [`docs/datos_sinteticos.md`](docs/datos_sinteticos.md)), del 30 ago al 21 nov de 2026 (84 días, entre 60 y 90 almuerzos al día; los festivos se comportan como domingo). Cuando Tomasseli entregue datos reales, se reemplaza con el mismo formato |
 | **Variables de entrada** | Día de la semana, franja, opción y categoría, y cantidades de semanas anteriores. Nada que solo se conozca después del día objetivo |
 | **Validación** | Corte cronológico: 10 semanas para entrenar y 2 para probar, nunca aleatorio |
 | **Línea base** | Promedio por día de la semana y franja |
-| **Modelos a comparar** | Regresión lineal y árbol de regresión (la decisión queda en `research.md` de la spec) |
+| **Modelos a comparar** | Regresión lineal y árbol de regresión con scikit-learn (la decisión queda en `research.md` de la spec) |
 | **Uso de la salida** | `prediccion_pedidos`, `GET /prevision` y una sección del resumen diario, con fecha de generación y versión del modelo. Solo informativa: nunca cambia disponibilidad, cupos ni la aceptación de pedidos |
-| **Ejecución** | Comando por lote (en GCP, Cloud Run Job con la misma imagen) |
+| **Ejecución** | Un comando entrena el modelo y lo guarda con joblib en `app/models/vN/`; FastAPI lo carga una sola vez al iniciar y `GET /prevision` devuelve la previsión del día siguiente: si aún no existe para esa fecha y versión, la calcula y la guarda en `prediccion_pedidos`. En GCP va dentro de la misma imagen, sin Cloud Run Job de previsión (decisión del docente, 22 Nov 2026) |
 
 ### 2.6 Supuestos y riesgos
 
@@ -238,9 +238,9 @@ Sí, para una tarea acotada y de menor prioridad: prever cuántos pedidos habrá
 | **Datos** | PostgreSQL: `categorias_menu`, `catalogo_items`, `plantilla_menu`, `menu_del_dia`, `pedidos`, `detalle_pedido`, `conversaciones`, `mensajes_procesados`, `alertas`, `bitacora`, `fragmentos_politicas` (pgvector), `prediccion_pedidos`, `uso_llm` y `cache_llm` |
 | **Servicio del chatbot** | Servicio propio en GCP, sin n8n: recibe los mensajes de WhatsApp Business API, consulta el menú, invoca el LLM, valida y escribe en `pedidos` y `detalle_pedido` |
 | **RAG de políticas** | Recupera fragmentos de `fragmentos_politicas` y responde con citas cuando la intención es `consulta_politica`; no responde menú, disponibilidad, precios ni pedidos; escala las preguntas sensibles a una persona |
-| **Previsión de pedidos** | Comando por lote que entrena y puntúa la regresión con el historial agregado y escribe en `prediccion_pedidos`; se consulta en `GET /prevision` y en el resumen diario |
+| **Previsión de pedidos** | Regresión entrenada por un comando con el historial agregado y guardada en `app/models/vN/`; FastAPI la carga y la sirve en `GET /prevision`, que escribe en `prediccion_pedidos`; se ve también en el resumen diario |
 | **Vistas** | `v_pedidos_operativa` (visualización de `pedidos` para cocina y operador, empleada directamente, sin comanda adicional) y `v_resumen_diario` (resumen diario) |
-| **Interfaz** | Chatbot en WhatsApp para el cliente; Forms de alta, cambio y agotado para administración y cocina; visualización de `pedidos` y consulta de `alertas` para cocina y operador; vista de conversaciones derivadas para el operador; consulta de `v_resumen_diario` para administración |
+| **Interfaz** | Chatbot en WhatsApp para el cliente (en local, simulador del webhook y vista de chat en Streamlit); pantallas de Streamlit que consumen FastAPI por HTTP (`API_URL`), sin reglas de negocio ni llamadas al LLM; Forms de alta, cambio y agotado para administración y cocina; visualización de `pedidos` y consulta de `alertas` para cocina y operador; vista de conversaciones derivadas para el operador; consulta de `v_resumen_diario` para administración |
 | **Reglas** | R1 a R18: vigencia y disponibilidad, datos mínimos, identificador único, recogida en el sitio, ventana de recogida, una opción por categoría en cada almuerzo, información unidireccional, RAG solo para políticas, precios informativos, preguntas sensibles a una persona, previsión informativa y tope de gasto del LLM |
 | **Orquestación** | No se aborda en esta fase (n8n queda para una fase posterior) |
 
@@ -263,8 +263,9 @@ Administración / Cocina -> Forms -> validación -> PostgreSQL -> menú y dispon
 Ingesta (uv run comanda ingestar) -> insumos/*.csv -> plantilla semanal del menú
                                   -> insumos/base_conocimiento/ -> fragmentos con embeddings (pgvector)
 
-Previsión (lote) -> historial agregado (insumos/historial_pedidos.jsonl) -> regresión -> prediccion_pedidos
-                 -> GET /prevision y resumen diario (solo si mejora la línea base)
+Entrenamiento -> historial agregado (insumos/historial_pedidos.csv) -> regresión -> app/models/vN/
+FastAPI (modelo cargado) -> GET /prevision -> prediccion_pedidos
+                          -> resumen diario (solo si mejora la línea base)
 ```
 
 ### 3.2 Modelo de datos
@@ -282,7 +283,7 @@ Previsión (lote) -> historial agregado (insumos/historial_pedidos.jsonl) -> reg
 | `alertas` | `alerta_id`, `tipo`, `severidad`, `pedido_id`, `origen`, `mensaje`, `creada_en`, `estado`, `responsable`, `resuelta_en` |
 | `bitacora` | `evento_id`, `entidad`, `entidad_id`, `accion`, `actor`, `timestamp`, `resultado`, `version_prompt`, `version_modelo`, `detalle` (sin secretos ni datos personales) |
 | `fragmentos_politicas` | `fragmento_id`, `documento`, `seccion`, `texto`, `embedding` (dimensión configurable: 1024 en local, 768 en GCP), `vigente_desde`, `version` |
-| `historial_pedidos` | `fecha`, `franja` (inicio de la franja de 30 minutos), `item_id`, `categoria`, `cantidad`. Agregado y sin datos personales; se carga desde `insumos/historial_pedidos.jsonl` (sintético mientras no haya datos reales) |
+| `historial_pedidos` | `fecha`, `franja` (inicio de la franja de 30 minutos), `item_id`, `categoria`, `cantidad`. Agregado y sin datos personales; se carga desde `insumos/historial_pedidos.csv` (sintético mientras no haya datos reales) |
 | `prediccion_pedidos` | `prediccion_id`, `fecha_objetivo`, `franja`, `item_id`, `cantidad_prevista`, `generado_en`, `version_modelo`, `error_validacion`, `error_linea_base`, `vigente` |
 | `uso_llm` | `uso_id`, `proveedor`, `modelo`, `tokens_entrada`, `tokens_salida`, `costo_usd`, `creado_en`, `origen` (conversación, políticas o evaluación). Lleva la cuenta del gasto frente a `LLM_TOPE_USD` |
 | `cache_llm` | `clave` (hash del prompt y del contexto), `respuesta`, `proveedor`, `modelo`, `creado_en`. Repetir la misma pregunta con el mismo contexto cuesta 0 USD |
@@ -422,7 +423,7 @@ Los nombres coinciden con las columnas de `pedidos` y `detalle_pedido`: cada alm
 
 ### 4.1 Herramientas
 
-LLM y embeddings (Ollama en local; API de Gemini con tope solo para la evaluación final y el Demo; Vertex AI en GCP); regresión por lote para la previsión (scikit-learn o equivalente, a decidir en el plan); Gamma o Canva y v0.dev para la presentación y el prototipo; WhatsApp Business API (o su entorno de prueba; en local, un simulador del webhook); servicio propio del chatbot (FastAPI, local y Cloud Run); PostgreSQL 16 + pgvector como base de datos (Docker en local, Cloud SQL en GCP); Forms para las actualizaciones de administración y cocina (en local, páginas que llaman al mismo endpoint); visualización de `pedidos` para cocina; Spec Kit para la especificación (`PROMPT_SPEC.md`); repositorio con prompts, scripts SQL, configuración y registro de cambios. El stack detallado está en [`docs/ficha-tecnica.md`](docs/ficha-tecnica.md).
+LLM y embeddings (Ollama en local; API de Gemini con tope solo para la evaluación final y el Demo; Vertex AI en GCP); regresión para la previsión en Python con scikit-learn, servida desde FastAPI; Gamma o Canva y v0.dev para la presentación y el prototipo; WhatsApp Business API (o su entorno de prueba; en local, un simulador del webhook); servicio propio del chatbot (FastAPI, local y Cloud Run); Streamlit como front (segundo servicio, puerto 8501); PostgreSQL 16 + pgvector como base de datos (Docker en local, Cloud SQL en GCP); Forms para las actualizaciones de administración y cocina (en local, pantallas de Streamlit que llaman al mismo endpoint); visualización de `pedidos` para cocina; Spec Kit para la especificación (`PROMPT_SPEC.md`); repositorio con prompts, scripts SQL, configuración y registro de cambios. El stack detallado está en [`docs/ficha-tecnica.md`](docs/ficha-tecnica.md).
 
 ### 4.2 Plan por hitos
 
@@ -505,9 +506,9 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 | Tema | Decisión |
 |---|---|
 | Alojamiento de PostgreSQL | PostgreSQL 16 + pgvector en Docker en local; Cloud SQL en GCP, desplegado y borrado el mismo día por el docente |
-| Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`); en local, páginas HTML que simulan el Form |
+| Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`); en local, pantallas de Streamlit que simulan el Form |
 | Servicio propio del chatbot | FastAPI en una imagen Docker; en local con `uvicorn` y en GCP en Cloud Run (escala a cero). La carga manual por el operador queda solo como contingencia (plan B) |
-| Visualización para cocina | Página servida por el servicio sobre `v_pedidos_operativa`: ID, hora de recogida, modalidad, almuerzos con sus líneas y notas. Sin alérgenos en esta fase |
+| Visualización para cocina | Pantalla de Streamlit que lee `GET /cocina/pedidos` (sobre `v_pedidos_operativa`): ID, hora de recogida, modalidad, almuerzos con sus líneas y notas. Sin alérgenos en esta fase |
 | Categorías y opciones | ME (Menú Especial), MS (Menú Sencillo), SP (Sopa) y JG (Jugo Natural), según `insumos/`; cada día ofrece 2 o 3 de ME, 4 de MS, 3 o 4 de SP y 3 de JG |
 | Una opción por categoría con varios menús | La unidad es el almuerzo: 1 principal (ME o MS), 1 sopa y 1 jugo; un pedido puede tener varios almuerzos y R12 se valida por almuerzo. La sopa y el jugo están incluidos; el cliente elige cuáles o pide «sin sopa» o «sin jugo» |
 | ID de cada opción | Sí: `item_id` del catálogo (ME001…JG007) y `menu_id` por fecha |
@@ -519,7 +520,9 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 | Conservación de datos | Pedidos 90 días y estado de conversaciones 30 días, configurables; sin texto completo de los mensajes |
 | Alérgenos | Política general en el RAG (`05_alergenos.md`); el bot no confirma ni descarta alérgenos de un plato y escala la pregunta a una persona. Los alérgenos por plato quedan fuera de esta fase |
 | Aviso de privacidad | Borrador en el RAG (`06_aviso_privacidad.md`); las solicitudes de corrección o borrado se escalan a una persona |
-| Previsión de pedidos | Regresión por lote del día siguiente, por franja de 30 minutos y opción; historial sintético de 12 semanas (10 de entrenamiento y 2 de prueba); solo informativa; se ve en `GET /prevision` y en el resumen diario |
+| Previsión de pedidos | Regresión por lote del día siguiente, por franja de 30 minutos y opción; historial sintético de 12 semanas (10 de entrenamiento y 2 de prueba); solo informativa; modelo de scikit-learn en `app/models/vN/`, servido por FastAPI en `GET /prevision` y visible en el resumen diario |
+| Front | Streamlit como segundo servicio (puerto 8501) que consume FastAPI por `API_URL`; FastAPI es solo el back (decisión del docente, 22 Nov 2026) |
+| Specs de Spec Kit | `001-chat-y-politicas-local` (todo lo local), `002-despliegue-gcp` (la especifica el equipo y la ejecuta el docente) y `003-automatizacion` (opcional; por ahora no va), según la guía del curso del 22 Nov 2026 |
 | LLM de pago | API de Gemini (`gemini-3.1-flash-lite`) con tope de 1 USD, caché y registro de gasto; solo para la evaluación final y el Demo |
 | Base de conocimiento | `insumos/base_conocimiento/`, como pide la guía de implementación del curso |
 | Recortes frente a la ficha del curso | Back propio en vez de n8n, precios informativos y alérgenos sin datos por plato, registrados en `docs/recortes_p12.md` para aprobación del docente |
@@ -563,7 +566,7 @@ ia20-esumer-proyectos-p12/
 ├── docs/             # Lo que produce el equipo: esta ficha en PDF, ficha técnica, análisis de consistencia, recortes, informes (docs/informes/), presentaciones y guion del demo
 │   └── otros/        # Referencias históricas (especificación v1.2) y apuntes; no son fuente de la spec
 ├── insumos/          # CSV del menú, base de conocimiento del RAG (insumos/base_conocimiento/), sets de prueba e historial para la previsión
-├── scripts/          # Utilidades del equipo (generar_historial.py: historial sintético de pedidos)
+├── scripts/          # Utilidades del equipo (generar_pedidos_sinteticos.py: historial sintético de pedidos)
 ├── .specify/ y specs/  # Aparecen al correr Spec Kit
 └── src/ y tests/       # Aparecen al implementar
 ```

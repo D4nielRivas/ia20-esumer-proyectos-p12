@@ -18,3 +18,12 @@ Están documentadas en el README (Anexo A) y en [`analisis_consistencia_p12.md`]
 - Después de confirmar, los cambios y cancelaciones los hace solo el operador.
 - La retención es de 90 días para pedidos y 30 para conversaciones.
 - El despliegue lo hace el docente, como dice la guía de implementación (sección 4).
+
+## Decisiones del docente que el equipo adopta (22 Nov 2026)
+
+Tomadas de la guía de implementación del curso y del prompt de referencia del docente; prevalecen sobre versiones anteriores de este repositorio:
+
+- **Specs:** `001-chat-y-politicas-local` (todo lo local: políticas, conversación, pedido y previsión), `002-despliegue-gcp` (la especifica el equipo y la ejecuta el docente) y `003-automatizacion` (opcional; por ahora no va). Reemplazan a `001-politicas-rag-local`, `002-conversacion-y-pedido-servicio` y `003-despliegue-gcp`.
+- **Front en Streamlit** como segundo servicio (puerto 8501) que consume FastAPI por `API_URL`; FastAPI es solo el back. Reemplaza las páginas HTML + JavaScript servidas por FastAPI.
+- **Previsión servida desde FastAPI:** un comando entrena la regresión de scikit-learn y la guarda con joblib en `app/models/vN/`; FastAPI la carga una vez y `GET /prevision` la sirve y escribe en `prediccion_pedidos`. Sin Cloud Run Job de previsión.
+- **Datos sintéticos:** `scripts/generar_pedidos_sinteticos.py` → `insumos/historial_pedidos.csv`, con los supuestos en [`datos_sinteticos.md`](datos_sinteticos.md). Diferencia con la guía: la estacionalidad es la semanal más una tendencia leve; no hay efecto mensual ni de quincena.

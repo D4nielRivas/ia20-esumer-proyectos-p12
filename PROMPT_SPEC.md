@@ -1,8 +1,8 @@
 # 📐 Prompt 1 · Crear solo la spec con Spec Kit · Proyecto 12 «Del chat a la comanda»
 
-Con este prompt se generan **solo los artefactos de especificación** (constitución, `CLAUDE.md`, `.claude/` y `specs/<feature>/`). No se escribe código de la aplicación: el flujo termina en `/speckit-analyze`. Para implementar después, use el Prompt 2 · Implementar la spec.
+Con este prompt se generan **solo los artefactos de especificación** (constitución, `CLAUDE.md`, `.claude/` y las specs `001-chat-y-politicas-local` y `002-despliegue-gcp`). No se escribe código de la aplicación: el flujo termina en `/speckit-analyze`. Para implementar después, use el Prompt 2 · Implementar la spec.
 
-Parte de la guía 01 del curso y del prompt de referencia que el docente preparó para P12 (`contenido-ia20-esumer/projects/seleccionados/proyecto-12-del-chat-a-la-comanda/PROMPT_SPEC.md`, revisión del 22 Nov 2026), con las decisiones del equipo. Lo que el equipo hace distinto a la ficha del curso está en [`docs/recortes_p12.md`](docs/recortes_p12.md).
+Parte de la guía 01 del curso y del prompt de referencia que el docente preparó para P12 (`contenido-ia20-esumer/projects/seleccionados/proyecto-12-del-chat-a-la-comanda/PROMPT_SPEC.md`, revisión del 22 Nov 2026), con las decisiones del equipo. Lo que el equipo hace distinto a la ficha del curso, y las decisiones del docente del 22 Nov que adopta (orden de las specs, front en Streamlit y modelo servido desde FastAPI), están en [`docs/recortes_p12.md`](docs/recortes_p12.md).
 
 ## Antes de pegar el prompt
 
@@ -11,7 +11,8 @@ Parte de la guía 01 del curso y del prompt de referencia que el docente prepar�
 - [x] `insumos/preguntas_politicas.jsonl`: 18 preguntas de 4 tipos (documento, fuera de alcance, sensible y trampa).
 - [x] `insumos/conversaciones_prueba.jsonl`: las 30 conversaciones de la ficha técnica §5.
 - [x] `insumos/Comandos útiles.csv` fuera de `insumos/` (ahora en `docs/otros/`).
-- [x] `insumos/historial_pedidos.jsonl`: historial sintético de 12 semanas para la previsión, generado con `scripts/generar_historial.py` (semilla fija).
+- [x] `insumos/historial_pedidos.csv`: historial sintético de 12 semanas para la previsión, generado con `scripts/generar_pedidos_sinteticos.py` (semilla fija), con los supuestos en [`docs/datos_sinteticos.md`](docs/datos_sinteticos.md).
+- [x] Specs con los nombres de la guía del curso: `001-chat-y-politicas-local` y `002-despliegue-gcp` (la especifica el equipo y la ejecuta el docente); la `003-automatizacion` es opcional y no se crea.
 
 ## Cómo usarlo
 
@@ -23,7 +24,7 @@ Parte de la guía 01 del curso y del prompt de referencia que el docente prepar�
    ```
 
 2. Pegue el prompt completo de abajo.
-3. Revise y apruebe `spec.md`, `plan.md` y `tasks.md` de cada spec antes de pasar al Prompt 2.
+3. Revise y apruebe `spec.md`, `plan.md` y `tasks.md` de las dos specs antes de pasar al Prompt 2.
 
 > 🔌 Lea la sección **«Integración»** del prompt antes de usarlo: todo se construye en local y al final el docente despliega en Google Cloud la misma imagen.
 >
@@ -53,19 +54,20 @@ En esta sesión SOLO se crean los artefactos de la spec. No escribas código de 
    - las reglas R1–R18 (§3.3), los prompts P1 v1.1 y P2 v1.1 (§3.6) y las pruebas P-01 a P-19 (§4.3);
    - el plan B (§4.5), las decisiones resueltas y pendientes (Anexo A) y los 7 principios comunes del curso (Anexo B).
 2. docs/ficha-tecnica.md: qué va y qué no va al RAG (§2), principios propios (§3), specs e historias H-1 a H-9 (§4), pruebas locales (§5), servicios de GCP (§6), guion del Demo (§7) y cronograma (§8).
-3. docs/recortes_p12.md: lo que el equipo hace distinto a la ficha del curso, pendiente de aprobación del docente.
+3. docs/recortes_p12.md: lo que el equipo hace distinto a la ficha del curso (pendiente de aprobación del docente) y las decisiones del docente del 22 Nov que el equipo adopta.
+   docs/datos_sinteticos.md: formato y supuestos del historial sintético de la previsión.
 4. docs/analisis_consistencia_p12.md: por qué se tomó cada decisión. Úsalo para justificar; no reabras lo que ya está resuelto.
 5. insumos/:
    - categorias_menu.csv, catalogo_items.csv, menus_diarios.csv y detalle_menu_dia.csv: la plantilla semanal del menú;
    - base_conocimiento/*.md: la base de conocimiento del RAG, borradores v0.1 con metadatos de vigencia en el encabezado;
    - preguntas_politicas.jsonl y conversaciones_prueba.jsonl: los sets de prueba;
-   - historial_pedidos.jsonl: el historial sintético para la previsión (generado por scripts/generar_historial.py).
+   - historial_pedidos.csv: el historial sintético para la previsión (generado por scripts/generar_pedidos_sinteticos.py).
 NO son fuente: docs/otros/ (la especificación v1.2 histórica y apuntes de git). docs/proyecto-12-del-chat-a-la-comanda.pdf es la misma ficha del README en PDF.
 Lee las fuentes antes de especificar. Si encuentras un conflicto que el README no resuelva, no lo resuelvas en silencio: regístralo en la sección «Conflictos detectados» de la spec, con la decisión tomada.
 
 # Paso 0 · Preparar el entorno (raíz del repositorio del equipo)
 Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos-p12, que ya es un repositorio Git con remoto origin. Nunca hagas git init, no crees ni cambies ramas y no hagas push.
-1. Verifica que estás en la rama main y que existen README.md, PROMPT_SPEC.md, docs/ (con ficha-tecnica.md) e insumos/ en minúscula. Si faltan los cuatro CSV del menú, los documentos de insumos/base_conocimiento/ o los dos sets de prueba o insumos/historial_pedidos.jsonl, detente y pídemelos.
+1. Verifica que estás en la rama main y que existen README.md, PROMPT_SPEC.md, docs/ (con ficha-tecnica.md) e insumos/ en minúscula. Si faltan los cuatro CSV del menú, los documentos de insumos/base_conocimiento/, los dos sets de prueba, insumos/historial_pedidos.csv o docs/datos_sinteticos.md, detente y pídemelos.
 2. Si no existe .specify/, inicializa Spec Kit aquí sin git: specify init --here --integration claude --no-git. Verifica .claude/skills/speckit-* y .specify/templates; specs/ queda en la raíz.
 3. Crea CLAUDE.md en la raíz con: propósito, stack, comandos, convenciones (español, TDD, un commit por fase) y estas reglas:
    a. El README es la fuente de verdad.
@@ -74,23 +76,26 @@ Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos
    d. Las preguntas sensibles las responde una persona.
    e. La previsión es informativa y nunca cambia disponibilidad ni la aceptación de pedidos.
    f. Desarrollo y pytest siempre con Ollama o adaptadores falsos; la API de Gemini solo en la evaluación final y el Demo.
+   g. El front es Streamlit y solo captura y muestra: consume FastAPI por HTTP (API_URL), sin reglas de negocio ni llamadas al LLM.
 4. Crea .claude/settings.json con permisos: permitir uv, pytest, docker compose, git add/commit y edición dentro del repo (nunca en insumos/); negar git push, gcloud y lectura de .env.
 5. Usa el .gitignore de la raíz (créalo si falta; si existe, solo añade líneas) para .env, .venv, __pycache__, .pytest_cache y .claude/settings.local.json, y deja versionado .env.example.
 6. Commits: un commit por fase de Spec Kit, solo con CLAUDE.md, .claude/, .specify/, specs/ y .gitignore, con prefijo «p12-spec:». No modifiques README.md, PROMPT_SPEC.md, docs/ ni insumos/.
 
-# Specs e historias (ficha técnica §4)
-- specs/001-politicas-rag-local/ → H-1 Políticas con citas.
-- specs/002-conversacion-y-pedido-servicio/ →
-  - H-2 Menú del día vigente.
-  - H-3 Pedido completo por WhatsApp (MVP).
-  - H-4 Cocina ve pedidos y alertas.
-  - H-5 Forms de menú y agotados.
-  - H-6 Operador y plan B.
-  - H-7 Resumen diario y evaluación final.
-  - H-9 Previsión de pedidos (menor prioridad).
-- H-8 Fase 2 (GCP): historia aparte en cada spec, dependiente de que H-1 a H-7 pasen la evaluación.
-- specs/003-despliegue-gcp/ NO se crea en esta sesión: el docente la entrega como copia de la spec de despliegue del ejemplo, con CODIGO_PROYECTO=p12 y el servicio chat-a-la-comanda.
-- Usa exactamente estos identificadores. Orden de implementación: Setup, H-1 a H-7, H-9 y H-8. Antes de H-1, la fase de Setup de tasks.md deja la fundación común: perfiles .env, puertos y adaptadores, Dockerfile, /salud, docker compose y el esquema base.
+# Specs e historias (ficha técnica §4; orden y nombres de la guía del curso, 22 Nov 2026)
+- specs/001-chat-y-politicas-local/: todo lo local en una spec.
+  - Parte A · políticas: H-1 Políticas con citas.
+  - Parte B · conversación, pedido y datos:
+    - H-2 Menú del día vigente.
+    - H-3 Pedido completo por WhatsApp (MVP).
+    - H-4 Cocina ve pedidos y alertas.
+    - H-5 Forms de menú y agotados.
+    - H-6 Operador y plan B.
+    - H-7 Resumen diario y evaluación final.
+    - H-9 Previsión de pedidos (menor prioridad).
+  En local, la conversación se prueba con el simulador del webhook y una vista de chat en Streamlit.
+- specs/002-despliegue-gcp/: H-8 Fase 2 (GCP). La misma imagen en Google Cloud con RAG_PERFIL=gcp, CODIGO_PROYECTO=p12 y el servicio chat-a-la-comanda, a partir de la spec de despliegue del ejemplo del curso. Se especifica en esta sesión (spec, plan y tareas), pero el despliegue lo ejecuta el docente; depende de que H-1 a H-7 pasen la evaluación local.
+- specs/003-automatizacion/ es OPCIONAL y NO se crea en esta sesión: WhatsApp Business real, orquestación (n8n o servicio propio, por definir), Loyverse y avisos.
+- Usa exactamente estos identificadores. Orden de implementación: Setup, H-1 a H-7, H-9 (spec 001) y H-8 (spec 002). Antes de H-1, la fase de Setup de tasks.md deja la fundación común: perfiles .env, puertos y adaptadores, Dockerfile, /salud, docker compose y el esquema base.
 
 # Contexto del problema
 Panadería Tomasseli recibe pedidos por WhatsApp y debe coordinarlos con la disponibilidad del menú (almuerzos diarios). WhatsApp se usa solo para las órdenes de los clientes, que llegan a la base de datos de pedidos a través de un servicio propio del chatbot. El servicio es fijo, de lunes a domingo de 11:30 a 15:30. Los pedidos son solo para el mismo día y solo de recogida en el sitio, para llevar o para consumir allí; no hay domicilios.
@@ -122,10 +127,10 @@ Actores:
 - Retención (RNF5): pedidos 90 días y conversaciones 30, configurables. No se guarda el texto completo de las conversaciones.
 
 # Requisitos funcionales (trazados al README)
-Spec 001:
+Spec 001 · Parte A (políticas):
 1. H-1 · RF12, R14 y R16: POST /politicas responde con citas [n] al documento y fragmento de insumos/base_conocimiento/, con las citas validadas por código. Sin evidencia dice «no lo encuentro» y ofrece el operador; escala las preguntas sensibles; nunca responde menú, disponibilidad, precios ni pedidos (P-15, P-16, P-17, P-19).
 2. H-1 · Evaluación con insumos/preguntas_politicas.jsonl.
-Spec 002:
+Spec 001 · Parte B (conversación, pedido y datos):
 3. H-2 · RF1 y RF3: ingesta de los CSV a categorias_menu, catalogo_items y plantilla_menu; generación de menu_del_dia por fecha; consulta del menú vigente por categoría con precios (R1, R2, R9; P-02).
 4. H-3 · RF4, RF5, RF6 y RF11: conversación con P2 v1.1:
    - presentar el menú y preguntar solo lo que falta;
@@ -136,10 +141,15 @@ Spec 002:
 6. H-5 · RF2: formularios de alta, cambio y agotado validados, auditados en bitacora y reflejados en ≤ 1 minuto (RNF8; P-01, P-03).
 7. H-6 · RF8 y RF9: derivación, pausa y reactivación del bot (tabla conversaciones); cambios y cancelaciones después de confirmar solo por el operador; alertas por falla (R6, R7); plan B sin confirmaciones falsas (P-10, P-11).
 8. H-7 · RF10: v_resumen_diario por estado, modalidad y canal, con pendientes e incidencias (P-12). Evaluación completa con insumos/conversaciones_prueba.jsonl y P-01 a P-19, con informe en docs/informes/evaluacion_local.
-9. H-9 · RF13, R17: previsión de pedidos por lote.
-   - insumos/historial_pedidos.jsonl ya existe (fecha, franja, item_id, categoria, cantidad; sin datos personales): es sintético, de 12 semanas (30 ago a 21 nov de 2026), y lo genera scripts/generar_historial.py con semilla fija. Úsalo tal cual; la ingesta lo carga en historial_pedidos.
+9. H-9 · RF13, R17: previsión de pedidos.
+   - insumos/historial_pedidos.csv ya existe (fecha, franja, item_id, categoria, cantidad; sin datos personales): es sintético, de 12 semanas (30 ago a 21 nov de 2026), y lo genera scripts/generar_pedidos_sinteticos.py con semilla fija; sus supuestos están en docs/datos_sinteticos.md. Úsalo tal cual; la ingesta lo carga en historial_pedidos.
    - Corte cronológico: 10 semanas para entrenar y 2 para probar.
-   - Se compara la regresión con la línea base. La salida va a prediccion_pedidos, GET /prevision y una sección del resumen diario (P-18).
+   - Se compara la regresión con la línea base. Un comando (uv run comanda entrenar) entrena el modelo y lo guarda con joblib en app/models/vN/ con su versión y su métrica frente a la línea base.
+   - FastAPI carga el modelo una sola vez al iniciar. GET /prevision devuelve la previsión del día siguiente por franja y opción: si todavía no existe para esa fecha y versión del modelo, la calcula y la guarda en prediccion_pedidos, sin duplicar. También aparece en una sección del resumen diario (P-18).
+Spec 002 (despliegue en GCP; la escribe el equipo y la ejecuta el docente):
+10. H-8: la misma imagen probada en local, con RAG_PERFIL=gcp: Cloud Run con dos servicios (FastAPI «chat-a-la-comanda» y Streamlit), Cloud Run Job de ingesta, Cloud SQL PostgreSQL 16 + pgvector, Vertex AI y Secret Manager; min-instances 0.
+11. H-8: verificación con infra/humo.jsonl y la misma evaluación de la spec 001 contra la URL; borrado el mismo día, incluida la instancia de Cloud SQL, con evidencia en docs/informes/despliegue y docs/informes/borrado.
+12. H-8: el equipo entrega Dockerfile probado, .env.example completo e infra/humo.jsonl; el docente pone el proyecto de Google Cloud, despliega, verifica y borra.
 Los sets de prueba ya existen y los revisó el equipo: úsalos tal como están. Si encuentras un caso inconsistente con el README, regístralo en «Conflictos detectados»; no edites insumos/.
 
 # Set de prueba del RAG con los 4 tipos de pregunta (requisito de la puerta P0)
@@ -162,8 +172,8 @@ Metas del set: citas válidas 100 % en las de documento, «no lo encuentro» ≥
 - v_resumen_diario disponible al cierre de cada jornada.
 
 # Stack (va en el plan, no en la spec)
-- Front: páginas HTML + JavaScript servidas por FastAPI en / y /static: simulador de chat de WhatsApp, simulador de formularios (alta, cambio, agotado), vista de cocina, vista del operador y resumen diario con la previsión. Consume el back solo por HTTP (API_URL configurable); no tiene reglas de negocio ni llama al LLM. Sin Streamlit.
-- Back: FastAPI (OpenAPI) con estas rutas:
+- Front: app de Streamlit (segundo servicio, puerto 8501): vista de chat sobre el simulador de WhatsApp, simulador de formularios (alta, cambio, agotado), vista de cocina, vista del operador y resumen diario con la previsión. Consume el back solo por HTTP (API_URL configurable); no tiene reglas de negocio ni llama al LLM. No hay páginas HTML + JavaScript servidas por FastAPI (decisión del docente, 22 Nov 2026).
+- Back: FastAPI (OpenAPI), solo back, con estas rutas:
   - GET /salud y GET y POST /webhook/whatsapp;
   - POST /politicas, POST /formularios/menu y GET /menu/hoy;
   - GET /cocina/pedidos y GET /cocina/alertas;
@@ -172,11 +182,12 @@ Metas del set: citas válidas 100 % en las de documento, «no lo encuentro» ≥
   Cada ruta queda en contracts/ con su JSON de entrada y de salida.
 - Datos: PostgreSQL 16 + pgvector con docker compose, con las tablas del README §3.2.
 - IA: LLM detrás de un adaptador (Ollama qwen2.5:3b; API de Gemini gemini-3.1-flash-lite con tope; Vertex AI en GCP) y embeddings bge-m3 (siempre locales en la Fase 1; no se pagan).
-- Modelo de ML: regresión por lote para la previsión, como comando (uv run comanda prever), solo informativa.
+- Modelo de ML: regresión en Python con scikit-learn para la previsión, solo informativa. Se entrena con uv run comanda entrenar, se guarda con joblib en app/models/vN/ y FastAPI la carga una sola vez y la sirve en GET /prevision (decisión del docente, 22 Nov 2026: los modelos van dentro de FastAPI).
 - Comando de ingesta: uv run comanda ingestar --limpiar.
-- Fase 2, GCP (la monta el docente):
-  - Cloud Run «chat-a-la-comanda»: PORT 8080, mínimo 0 y máximo 2 instancias.
-  - Cloud Run Jobs de ingesta y de previsión, con la misma imagen.
+- Fase 2, GCP (spec 002; la ejecuta el docente):
+  - Cloud Run «chat-a-la-comanda» (FastAPI con el modelo dentro): PORT 8080, mínimo 0 y máximo 2 instancias.
+  - Cloud Run del front en Streamlit: mínimo 0 instancias, con API_URL apuntando al servicio de FastAPI.
+  - Cloud Run Job de ingesta con la misma imagen. La previsión no lleva Cloud Run Job: la sirve FastAPI.
   - Cloud SQL PostgreSQL 16 (db-f1-micro) + pgvector.
   - Vertex AI (Gemini Flash y text-multilingual-embedding-002), Cloud Storage para las políticas, Secret Manager y Artifact Registry.
   - WhatsApp Business API (o su entorno de prueba) y Google Forms que llaman a POST /formularios/menu.
@@ -187,17 +198,18 @@ Nota para el equipo: todo el desarrollo, las pruebas y la evaluación se hacen e
 
 Stack común (local → GCP, cambiando solo la configuración RAG_PERFIL=local|gcp):
 - Lenguaje y dependencias: Python 3.12 + uv → la misma imagen.
-- Servicio (API + páginas): FastAPI con uv run uvicorn en localhost:8000 → Cloud Run (escala a cero).
+- Servicio (API): FastAPI con uv run uvicorn en localhost:8000 → Cloud Run «chat-a-la-comanda» (escala a cero).
+- Interfaz: Streamlit en localhost:8501, que solo captura y muestra y consume la API por API_URL → segundo servicio de Cloud Run.
 - Base relacional + vectorial: PostgreSQL 16 + pgvector con docker compose → Cloud SQL PostgreSQL 16 + pgvector.
 - LLM: Ollama qwen2.5:3b (7b o 1.5b según la RAM); API de Gemini solo para la evaluación final y el Demo → Vertex AI Gemini Flash.
 - Embeddings: Ollama bge-m3 (dimensión 1024) → text-multilingual-embedding-002 (dimensión 768).
 - Documentos de políticas: insumos/base_conocimiento/ → bucket de Cloud Storage; solo la ingesta los lee.
-- Ingesta y previsión: uv run comanda ingestar --limpiar y uv run comanda prever → Cloud Run Jobs con la misma imagen y los mismos comandos.
+- Ingesta: uv run comanda ingestar --limpiar → Cloud Run Job con la misma imagen y el mismo comando.
 - Canal WhatsApp: simulador local con el formato de WhatsApp Cloud API → WhatsApp Business API.
-- Formularios: páginas HTML locales → Google Forms, contra el mismo endpoint.
+- Formularios: pantallas de Streamlit en local → Google Forms, contra el mismo endpoint.
 - Configuración: .env leído con pydantic-settings → variables de entorno del despliegue.
 - Secretos: .env (nunca en Git) → Secret Manager.
-- Modelo tabular: regresión por lote que escribe en prediccion_pedidos → el mismo comando como Cloud Run Job.
+- Modelo tabular: regresión de scikit-learn entrenada con uv run comanda entrenar, guardada en app/models/vN/ y cargada por FastAPI, que escribe en prediccion_pedidos → el mismo modelo dentro de la imagen de FastAPI.
 - Orquestación: el servicio propio del chatbot reemplaza a n8n (recorte documentado en docs/recortes_p12.md).
 - Pruebas: pytest + sets de evaluación → prueba de humo + la misma evaluación contra la URL.
 
@@ -216,12 +228,12 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - los tokens de WhatsApp.
    Nada de rutas absolutas, URLs, números de WhatsApp ni claves en el código.
 3. Dockerfile desde la fase local. La app escucha en la variable PORT (8080 en la nube) y se prueba con docker run antes de entregar.
-4. Sin estado en disco ni en memoria: Cloud Run borra el disco y puede tener varias instancias. Las conversaciones, la pausa del bot, la deduplicación, la caché y el gasto del LLM van a PostgreSQL; el menú y las políticas se cargan con la ingesta.
+4. Sin estado en disco ni en memoria: Cloud Run borra el disco y puede tener varias instancias. Las conversaciones, la pausa del bot, la deduplicación, la caché, el gasto del LLM y la previsión van a PostgreSQL; el menú y las políticas se cargan con la ingesta. El modelo entrenado viaja dentro de la imagen (app/models/vN/) y solo se lee.
 5. Dimensión del vector parametrizada en RAG_EMBED_DIM (1024 local, 768 nube). El índice de la nube se reconstruye con la ingesta, no se copia.
 6. Fechas y horas siempre en TZ_NEGOCIO, nunca la hora del servidor (Cloud Run corre en UTC).
 7. Contrato común igual en los dos perfiles:
    - GET /salud sin clave: perfil, estado de la base, modelos, número de fragmentos, opciones del menú de hoy y versiones de la app, de P1, de P2 y del modelo de previsión.
-   - Las demás rutas, salvo el webhook, piden la cabecera X-API-Key (401 si falta). Las páginas piden la clave y la envían sin guardarla.
+   - Las demás rutas, salvo el webhook, piden la cabecera X-API-Key (401 si falta). Streamlit pide la clave y la envía sin guardarla en disco.
    - El webhook verifica su token y la firma X-Hub-Signature-256 en el perfil gcp.
    - Errores 422 y 503 como {"error","detalle"}.
    - El JSON de salida no cambia entre local y gcp.
@@ -237,37 +249,40 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
 11. Trazabilidad: versión de P1, de P2 y del modelo en cada registro de bitacora; tokens y costo de cada llamada pagada en uso_llm.
 12. Evaluación reproducible: el mismo set de prueba corre contra localhost y contra la URL de la nube.
 
-Entrega del equipo antes de la sesión de despliegue con el docente (inclúyela como criterio de aceptación de H-7):
+Entrega del equipo antes de la sesión de despliegue con el docente (inclúyela como criterio de aceptación de H-7 en la spec 001 y como prerrequisito de H-8 en la spec 002):
 - README.md con una sección nueva de comandos para levantarlo en local, sin borrar la ficha del proyecto.
 - .env.example con todas las variables de los dos perfiles.
-- Dockerfile y .gcloudignore, con la imagen probada en local (docker build + docker run).
+- Dockerfile y .gcloudignore, con la imagen probada en local (docker build + docker run) para FastAPI y para Streamlit (en el plan se decide si es una imagen con dos comandos o dos imágenes; regístralo en research.md).
 - Comando de ingesta que crea el esquema si no existe y carga solo el menú y las políticas vigentes.
 - GET /salud funcionando y pruebas en verde.
 - docs/informes/evaluacion_local con las metas cumplidas («sin metas cumplidas no hay nube»).
 - infra/humo.jsonl con 3 a 5 casos y su resultado esperado: GET /salud, menú de hoy, domicilio rechazado, hora fuera de la ventana y pregunta de política con cita.
-NO crees scripts ni recursos de Google Cloud: el docente pone el proyecto de Google Cloud, la spec 003-despliegue-gcp, los scripts de despliegue y borrado y la configuración de la nube.
+La Fase 2 es la spec 002-despliegue-gcp: especifícala (spec, plan y tareas) a partir de la spec de despliegue del ejemplo del curso. Si no la tienes en el repositorio, especifícala con esta sección «Integración» y regístralo en «Conflictos detectados». NO crees recursos de Google Cloud ni ejecutes despliegues: el docente pone el proyecto de Google Cloud y despliega, verifica y borra.
 
 # Flujo (completo y en orden, sin pedirme confirmación entre pasos)
 1. /speckit-constitution (una vez, común a las dos specs): los 7 principios comunes del curso (README, Anexo B) más los 8 propios de la ficha técnica §3.
-2. Spec 001-politicas-rag-local: /speckit-specify → /speckit-clarify → /speckit-plan → /speckit-tasks → /speckit-analyze.
-3. Spec 002-conversacion-y-pedido-servicio: el mismo ciclo, usando el contrato HTTP de /politicas que dejó la spec 001.
+2. Spec 001-chat-y-politicas-local: /speckit-specify → /speckit-clarify → /speckit-plan → /speckit-tasks → /speckit-analyze.
+3. Spec 002-despliegue-gcp: el mismo ciclo, sobre la imagen, el contrato HTTP y las variables de entorno que dejó la spec 001 (perfil RAG_PERFIL=gcp). La spec 003 de automatización es opcional y no se crea ahora.
 Cómo hacer cada paso:
-- /speckit-specify: el qué y el porqué, sin tecnología. Historias H-1…H-9 según la ficha técnica §4, con criterios de aceptación verificables trazados a RF, RNF, R y P del README y a los casos de los sets de prueba. Incluye las secciones «Conflictos detectados», «Recortes pendientes de aprobación» (desde docs/recortes_p12.md) y «Fuera de alcance (NA)».
+- /speckit-specify: el qué y el porqué, sin tecnología. Historias H-1…H-7 y H-9 en la spec 001 (partes A y B) y H-8 en la spec 002, según la ficha técnica §4, con criterios de aceptación verificables trazados a RF, RNF, R y P del README y a los casos de los sets de prueba. Incluye las secciones «Conflictos detectados», «Recortes pendientes de aprobación» (desde docs/recortes_p12.md) y «Fuera de alcance (NA)».
 - /speckit-clarify: responde tú cada pregunta con la opción recomendada y justifícala en una línea en Aclaraciones. Lo que el README resuelve (Anexo A) no se vuelve a preguntar; usa su lista de pendientes como supuestos.
 - /speckit-plan con el stack de arriba; debe pasar el Constitution Check. El data-model reproduce el README §3.2 (tablas, PK, FK, UNIQUE, CHECK y vistas) sin cambiar nombres. Los contratos usan P2 v1.1 tal como está en el README §3.6. Documenta en research.md (Decisión / Justificación / Alternativas):
   - Ollama frente a Gemini para la extracción con P2;
   - la deduplicación de mensajes de WhatsApp con varias instancias;
-  - regresión lineal frente a árbol de regresión, comparados con la línea base;
+  - regresión lineal frente a árbol de regresión, comparados con la línea base, y cómo se versiona y carga el modelo en app/models/vN/;
+  - Streamlit como front: una o dos imágenes y cómo recibe API_URL y la clave;
   - el simulador de WhatsApp con el mismo formato de la API;
   - la caché y el tope del LLM de pago;
   - el clasificador determinístico de preguntas sensibles.
-- /speckit-tasks: fase Setup y luego tareas pequeñas agrupadas por historia (H-1…H-9), ordenadas por dependencia, con las pruebas antes del código.
-- /speckit-analyze: corrige toda inconsistencia crítica o alta, también entre 001 y 002 y contra el README (rutas, campos, errores, estados, identificadores de historias y nombres de variables de entorno). Trata como CRÍTICO:
+- /speckit-tasks: en la 001, fase Setup y luego tareas pequeñas agrupadas por historia (H-1…H-7 y H-9); en la 002, las de H-8; ordenadas por dependencia, con las pruebas antes del código.
+- /speckit-analyze: corrige toda inconsistencia crítica o alta, también entre 001 y 002 (rutas, variables de entorno, perfil y contrato) y contra el README (rutas, campos, errores, estados, identificadores de historias y nombres de variables de entorno). Trata como CRÍTICO:
   - una confirmación sin disponibilidad revalidada o sin aceptación del cliente;
   - un pedido duplicado por un reintento del webhook;
   - que el RAG responda menú, disponibilidad, precios o pedidos, o responda de fondo una pregunta sensible;
   - que la previsión cambie disponibilidad, cupos o la aceptación de pedidos;
-  - una llamada a la API de pago sin pasar por la caché y el tope.
+  - una llamada a la API de pago sin pasar por la caché y el tope;
+  - reglas de negocio o llamadas al LLM en Streamlit;
+  - un paso de la spec 002 que cree recursos de Google Cloud o despliegue desde la sesión del equipo.
 
 # Buenas prácticas que deben quedar en la spec, el plan y las tareas
 - Pruebas primero (pytest); nunca avanzar con pruebas en rojo.
@@ -279,8 +294,8 @@ Cómo hacer cada paso:
 - Todo en español.
 
 # Puertas y parada
-- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Lo demás decídelo y regístralo.
-- Termina después de /speckit-analyze de la spec 002. No escribas código de la aplicación. El entregable es solo .claude/, CLAUDE.md, .specify/memory/constitution.md, specs/001-politicas-rag-local/ y specs/002-conversacion-y-pedido-servicio/ (spec, plan, research, data-model, contracts, quickstart, tasks y checklists).
+- Si una decisión cambia el alcance o el costo, o contradice el README, detente y pregúntame: por ejemplo, WhatsApp real en local, quitar Streamlit, pagos, domicilios, alérgenos por plato, quitar la previsión, subir el tope del LLM o cualquier ítem marcado NA. Lo demás decídelo y regístralo.
+- Termina después de /speckit-analyze de la spec 002. No escribas código de la aplicación. El entregable es solo .claude/, CLAUDE.md, .specify/memory/constitution.md, specs/001-chat-y-politicas-local/ y specs/002-despliegue-gcp/ (spec, plan, research, data-model, contracts, quickstart, tasks y checklists).
 - No ejecutes /speckit-implement, no hagas push ni despliegues en GCP.
 
 # Entregable final
@@ -289,7 +304,7 @@ Un resumen con:
 2. Las decisiones de clarify de cada spec.
 3. Los conflictos detectados que el README no resolvía y cómo se resolvieron.
 4. Los hallazgos de /speckit-analyze y cómo se corrigieron.
-5. El número de tareas por historia y el orden de implementación (Setup, H-1…H-7, H-9 y H-8).
+5. El número de tareas por historia y por spec, y el orden de implementación (Setup, H-1…H-7 y H-9 en la 001; H-8 en la 002).
 6. Cómo quedaron cubiertos los requisitos de la sección «Integración».
 7. Los supuestos pendientes de validar con Tomasseli (README, Anexo A) y los recortes pendientes del docente.
 8. Los prerrequisitos para el Prompt 2:

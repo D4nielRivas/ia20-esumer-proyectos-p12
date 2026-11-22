@@ -69,30 +69,33 @@ El archivo `.specify/memory/constitution.md` parte de los **7 principios comunes
 
 | Spec | Qué construye | Historias |
 |---|---|---|
-| `specs/001-politicas-rag-local/` | Servicio de políticas que el chatbot consulta cuando la intención es `consulta_politica`; escala a una persona las preguntas sensibles. No responde menú, disponibilidad, precios ni pedidos. | H-1 |
-| `specs/002-conversacion-y-pedido-servicio/` | Servicio propio del chatbot (sin n8n) y su capa de datos: esquema de PostgreSQL con restricciones y vistas, generación del menú del día desde la plantilla semanal, Forms de menú y agotados, conversación por WhatsApp con las validaciones al cliente, registro idempotente en `pedidos` y `detalle_pedido`, visualización de `pedidos` y `alertas` para cocina, operador y resumen diario en `v_resumen_diario`. Cubre los flujos A a E de la ficha, incluida la previsión de pedidos por lote. | H-2 a H-7 y H-9 |
-| `specs/003-despliegue-gcp/` | No se crea en la sesión del Prompt 1: la entrega el docente como copia de la spec de despliegue del ejemplo, con `CODIGO_PROYECTO=p12` y el servicio `chat-a-la-comanda`. El docente pone el proyecto de Google Cloud, los scripts de despliegue y borrado y la configuración de la nube. Dentro de las specs 001 y 002, la Fase 2 queda como historia aparte (H-8). | H-8 |
+| `specs/001-chat-y-politicas-local/` | Todo lo local en una spec. **Parte A:** servicio de políticas que el chatbot consulta cuando la intención es `consulta_politica`; escala a una persona las preguntas sensibles; no responde menú, disponibilidad, precios ni pedidos. **Parte B:** servicio propio del chatbot (sin n8n) y su capa de datos: esquema de PostgreSQL con restricciones y vistas, generación del menú del día desde la plantilla semanal, Forms de menú y agotados, conversación por WhatsApp con las validaciones, registro idempotente en `pedidos` y `detalle_pedido`, `pedidos` y `alertas` para cocina, operador, resumen diario en `v_resumen_diario` y previsión de pedidos servida por FastAPI. Front en Streamlit. | H-1 a H-7 y H-9 |
+| `specs/002-despliegue-gcp/` | Despliegue en Google Cloud de la misma imagen, a partir de la spec de despliegue del ejemplo del curso, con `CODIGO_PROYECTO=p12` y el servicio `chat-a-la-comanda`. **La especifica el equipo** (spec, plan y tareas) en la sesión del Prompt 1; **el despliegue lo ejecuta el docente**. El equipo deja listos el Dockerfile, `.env.example` e `infra/humo.jsonl`. | H-8 |
+| `specs/003-automatizacion/` | **Opcional; por ahora no va** y no se crea en la sesión del Prompt 1: canal real de WhatsApp Business y orquestación (n8n o servicio propio, por definir), Loyverse y avisos. | — |
+
+Orden y nombres según la guía de implementación del curso (22 Nov 2026).
 
 El número de cada historia es también su orden de implementación, salvo H-9, que se agregó después: va después de H-7 y antes de H-8. Antes de H-1, la fase de *Setup* de las tareas deja la fundación común: perfiles `.env`, puertos y adaptadores (incluido el del LLM con `LLM_PROVEEDOR`), Dockerfile, `/salud`, `docker compose` y el esquema base.
 
 | Historia | Spec | Qué entrega | Pruebas |
 |---|---|---|---|
-| **H-1** Políticas con citas | 001 | RAG sobre `insumos/base_conocimiento/` con citas validadas, «no lo encuentro» y escalamiento de las preguntas sensibles | P-15, P-16, P-17, P-19 y `insumos/preguntas_politicas.jsonl` |
-| **H-2** Menú del día vigente | 002 | Ingesta de la plantilla semanal, generación del menú de cada fecha y consulta por categoría con precios | P-02 |
-| **H-3** Pedido completo por WhatsApp ★ MVP | 002 | Conversación, P2 v1.1, validaciones (R1–R5, R8, R11, R12, R15), resumen con total estimado, confirmación y registro idempotente | P-04 a P-09 |
-| **H-4** Cocina ve pedidos y alertas | 002 | `v_pedidos_operativa` y alertas en solo lectura, con roles | P-13 |
-| **H-5** Forms de menú y agotados | 002 | Alta, cambio y agotado validados, auditados y visibles al bot en ≤ 1 minuto | P-01, P-03 |
-| **H-6** Operador y plan B | 002 | Derivación, pausa y reactivación del bot, cambios y cancelaciones después de confirmar, y fallas sin confirmación falsa | P-10, P-11 |
-| **H-7** Resumen diario y evaluación final | 002 | `v_resumen_diario`, evaluación completa con `insumos/conversaciones_prueba.jsonl`, `docs/informes/evaluacion_local`, entregables de despliegue e `infra/humo.jsonl` | P-12, P-14 y metas |
-| **H-8** Fase 2 en GCP | 001 y 002 | La misma imagen en Cloud Run con el perfil `gcp`, prueba de humo y la misma evaluación contra la URL; la ejecuta el docente cuando H-1 a H-7 pasan la evaluación | Humo + evaluación |
-| **H-9** Previsión de pedidos (menor prioridad) | 002 | Historial agregado sintético de 12 semanas (`insumos/historial_pedidos.jsonl`, generado por `scripts/generar_historial.py`), línea base (promedio por día de la semana y franja), regresión con corte cronológico, `prediccion_pedidos`, `GET /prevision` y sección en el resumen diario; solo informativa | P-18 |
+| **H-1** Políticas con citas | 001 (parte A) | RAG sobre `insumos/base_conocimiento/` con citas validadas, «no lo encuentro» y escalamiento de las preguntas sensibles | P-15, P-16, P-17, P-19 y `insumos/preguntas_politicas.jsonl` |
+| **H-2** Menú del día vigente | 001 (parte B) | Ingesta de la plantilla semanal, generación del menú de cada fecha y consulta por categoría con precios | P-02 |
+| **H-3** Pedido completo por WhatsApp ★ MVP | 001 (parte B) | Conversación, P2 v1.1, validaciones (R1–R5, R8, R11, R12, R15), resumen con total estimado, confirmación y registro idempotente | P-04 a P-09 |
+| **H-4** Cocina ve pedidos y alertas | 001 (parte B) | `v_pedidos_operativa` y alertas en solo lectura, con roles | P-13 |
+| **H-5** Forms de menú y agotados | 001 (parte B) | Alta, cambio y agotado validados, auditados y visibles al bot en ≤ 1 minuto | P-01, P-03 |
+| **H-6** Operador y plan B | 001 (parte B) | Derivación, pausa y reactivación del bot, cambios y cancelaciones después de confirmar, y fallas sin confirmación falsa | P-10, P-11 |
+| **H-7** Resumen diario y evaluación final | 001 (parte B) | `v_resumen_diario`, evaluación completa con `insumos/conversaciones_prueba.jsonl`, `docs/informes/evaluacion_local`, entregables de despliegue e `infra/humo.jsonl` | P-12, P-14 y metas |
+| **H-8** Fase 2 en GCP | 002 | La misma imagen en Cloud Run con el perfil `gcp`, prueba de humo y la misma evaluación contra la URL; la ejecuta el docente cuando H-1 a H-7 pasan la evaluación | Humo + evaluación |
+| **H-9** Previsión de pedidos (menor prioridad) | 001 (parte B) | Historial agregado sintético de 12 semanas (`insumos/historial_pedidos.csv`, generado por `scripts/generar_pedidos_sinteticos.py`; supuestos en [`datos_sinteticos.md`](datos_sinteticos.md)), línea base (promedio por día de la semana y franja), regresión de scikit-learn con corte cronológico guardada en `app/models/vN/` y cargada por FastAPI, `GET /prevision`, `prediccion_pedidos` y sección en el resumen diario; solo informativa | P-18 |
 
 El guion del Demo (sección 7) queda cubierto por H-1 a H-7; la previsión (H-9) aparece en el resumen diario si está lista.
 
 ## 5. Pruebas locales
 
 - Servicio propio del chatbot en local + PostgreSQL 16 con pgvector en Docker + simulador del webhook de WhatsApp.
-- Simulador de los Forms de menú, disponibilidad y agotados: páginas que llaman al mismo endpoint que usarán los Google Forms y escriben en `menu_del_dia`.
+- Front en Streamlit (segundo servicio, puerto 8501) que consume FastAPI por `API_URL`: vista de chat sobre el simulador del webhook, vista de cocina, vista del operador y resumen diario con la previsión.
+- Simulador de los Forms de menú, disponibilidad y agotados: pantallas de Streamlit que llaman al mismo endpoint que usarán los Google Forms y escriben en `menu_del_dia`.
 - n8n local en Docker: **no aplica** (queda para etapas posteriores).
 - 30 conversaciones en `insumos/conversaciones_prueba.jsonl`: pedido completo de uno y de varios almuerzos, datos faltantes, agotado, dos opciones de una categoría en un almuerzo, pedido sin modalidad o con domicilio, hora fuera de la ventana, cambio o cancelación después de confirmar (se deriva al operador), paso a humano, reintento del webhook e inyección.
 - 18 preguntas de políticas en `insumos/preguntas_politicas.jsonl`, de los 4 tipos que pide el curso: documento (6), fuera de alcance (4), sensible (4) y trampa (4), cada una con su comportamiento y su documento esperado. Metas: citas válidas 100 % en las de documento, «no lo encuentro» ≥ 90 % en las fuera de alcance, escalamiento ≥ 90 % en las sensibles y 0 trampas exitosas.
@@ -103,7 +106,8 @@ Las metas de la ficha (README §1.7) se registran en `docs/informes/evaluacion_l
 
 ## 6. Google Cloud (lo despliega el docente)
 
-- Cloud Run: servicio `chat-a-la-comanda` (API y páginas, `PORT` 8080, mínimo 0 y máximo 2 instancias, `X-API-Key`), Cloud Run Job de ingesta y Cloud Run Job de previsión, con la misma imagen.
+- Cloud Run: dos servicios, `chat-a-la-comanda` (FastAPI con el modelo de previsión dentro, `PORT` 8080, mínimo 0 y máximo 2 instancias, `X-API-Key`) y el front en Streamlit (mínimo 0), y un Cloud Run Job de ingesta con la misma imagen. La previsión no lleva Cloud Run Job: la sirve FastAPI.
+- Se especifica en `specs/002-despliegue-gcp/`; la escribe el equipo y la ejecuta el docente.
 - Artifact Registry, repositorio `ia20`, con la imagen.
 - Cloud SQL for PostgreSQL 16 (db-f1-micro) + pgvector (menú, pedidos, conversaciones, alertas, bitácora, fragmentos de políticas y previsión).
 - Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Cloud Storage (documentos de políticas que lee la ingesta) · Secret Manager.
@@ -121,7 +125,7 @@ El docente **despliega** → cambiar el menú (agotado por Form) → pregunta de
 | Fechas | Etapa | Qué hace el equipo en este proyecto | Puerta |
 |---|---|---|---|
 | 14 y 15 Nov | Definición del alcance y Spec Kit | Leer la ficha, definir qué va y qué no va al RAG (sección 2), instalar las herramientas (uv, Spec Kit, Docker, Ollama) y escribir la constitución con los principios de la sección 3. | — |
-| Hasta el 22 Nov | Fase 1 · Spec | Ajustar el prompt con la revisión del docente, armar los sets de prueba y correr `PROMPT_SPEC.md` para la constitución y las specs `001-politicas-rag-local` y `002-conversacion-y-pedido-servicio` (plan, tareas y análisis). | P0 · spec |
+| Hasta el 22 Nov | Fase 1 · Spec | Ajustar el prompt con la revisión del docente, armar los sets de prueba y correr `PROMPT_SPEC.md` para la constitución y las specs `001-chat-y-politicas-local` y `002-despliegue-gcp` (plan, tareas y análisis). | P0 · spec |
 | 23 al 29 Nov | Fase 2 · Implementación local | Implementar con el Prompt 2, historia por historia (H-1 a H-7 y H-9), en local con Ollama; correr las pruebas de la sección 5, calibrar hasta cumplir las metas, usar la API de Gemini solo en la evaluación final y probar la imagen con `docker build` y `docker run`. | P1 · `v1.0-local` |
-| 30 Nov al 6 Dic | Fase 3 · Google Cloud con el docente | El docente despliega la imagen con `003-despliegue-gcp`; se verifica con la prueba de humo y la evaluación (H-8) y se borra el mismo día. Sin clase el 5 y 6 de diciembre. | P2 · nube |
+| 30 Nov al 6 Dic | Fase 3 · Google Cloud con el docente | El docente despliega la imagen con `002-despliegue-gcp`; se verifica con la prueba de humo y la evaluación (H-8) y se borra el mismo día. Sin clase el 5 y 6 de diciembre. | P2 · nube |
 | 12 y 13 Dic | Demo | Etiqueta `v1.0-demo` el 12 de diciembre. El 13, el docente despliega desde cero; el equipo presenta con el guion de la sección 7; el docente borra con evidencia y revoca la key de Gemini. | Demo · `v1.0-demo` |
