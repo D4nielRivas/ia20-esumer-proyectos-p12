@@ -2,7 +2,7 @@
 titulo: Precios y medios de pago
 organizacion: Panadería Tomasseli
 version: 0.2
-estado: borrador pendiente de validación por Tomasseli
+estado: vigente
 vigente_desde: 2026-11-22
 responsable: por definir (administración)
 ---

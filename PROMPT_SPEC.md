@@ -7,7 +7,7 @@ Parte de la guía 01 del curso y del prompt de referencia que el docente prepar�
 ## Antes de pegar el prompt
 
 - [x] `PROMPT_SPEC.md` en la raíz, rama `main`, `docs/` e `insumos/` en minúscula.
-- [x] `insumos/base_conocimiento/` con un documento por tema: horario y recogida, cómo pedir, cambios y cancelaciones, medios de pago, alérgenos, aviso de privacidad y domicilios (borradores v0.1 y v0.2).
+- [x] `insumos/base_conocimiento/` con un documento por tema: horario y recogida, cómo pedir, cambios y cancelaciones, medios de pago, alérgenos, aviso de privacidad y domicilios (versiones 0.1 y 0.2, en estado vigente).
 - [x] `insumos/preguntas_politicas.jsonl`: 18 preguntas de 4 tipos (documento, fuera de alcance, sensible y trampa).
 - [x] `insumos/conversaciones_prueba.jsonl`: las 30 conversaciones de la ficha técnica §5.
 - [x] Los apuntes de git salieron de `insumos/` y quedaron en `docs/otros/comandos_utiles.csv` (nombres sin espacios ni tildes, rúbrica R4).
@@ -31,7 +31,7 @@ Parte de la guía 01 del curso y del prompt de referencia que el docente prepar�
 >
 > 🧭 Todas las decisiones de alcance están en el `README.md` (Anexo A) y su razonamiento en [`docs/analisis_consistencia_p12.md`](docs/analisis_consistencia_p12.md). Si alguna cambia, cámbiela primero en el README y después en este prompt.
 >
-> Revise el flag `--no-git` con `specify init --help`, por si su versión de Spec Kit lo nombra distinto.
+> Probado con Spec Kit 1.4.3: `specify init` no toca git si no se pide la extensión `--extension git`, así que no hace falta ningún flag para omitirlo.
 
 ## Prompt
 
@@ -60,7 +60,7 @@ En esta sesión SOLO se crean los artefactos de la spec. No escribas código de 
 4. docs/analisis_consistencia_p12.md: por qué se tomó cada decisión. Úsalo para justificar; no reabras lo que ya está resuelto.
 5. insumos/:
    - categorias_menu.csv, catalogo_items.csv, menus_diarios.csv y detalle_menu_dia.csv: la plantilla semanal del menú;
-   - base_conocimiento/*.md: la base de conocimiento del RAG, borradores v0.1 y v0.2 con metadatos de vigencia en el encabezado;
+   - base_conocimiento/*.md: la base de conocimiento del RAG, versiones 0.1 y 0.2 en estado vigente, con metadatos de vigencia en el encabezado (estado, version y vigente_desde). La ingesta solo indexa los documentos de esta carpeta con estado vigente y vigente_desde ≤ la fecha de ingesta, y guarda version y vigente_desde en fragmentos_politicas; nada fuera de base_conocimiento/ se indexa nunca;
    - preguntas_politicas.jsonl y conversaciones_prueba.jsonl: los sets de prueba;
    - historial_pedidos.csv: el historial sintético para la previsión (generado por scripts/generar_pedidos_sinteticos.py).
 NO son fuente: docs/otros/ (la especificación v1.2 histórica y apuntes de git). docs/proyecto-12-del-chat-a-la-comanda.pdf es la misma ficha del README en PDF.
@@ -69,7 +69,7 @@ Lee las fuentes antes de especificar. Si encuentras un conflicto que el README n
 # Paso 0 · Preparar el entorno (raíz del repositorio del equipo)
 Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos-p12, que ya es un repositorio Git con remoto origin. Nunca hagas git init, no crees ni cambies ramas y no hagas push.
 1. Verifica que estás en la rama main y que existen README.md, PROMPT_SPEC.md, docs/ (con ficha-tecnica.md) e insumos/ en minúscula. Si faltan los cuatro CSV del menú, los documentos de insumos/base_conocimiento/, los dos sets de prueba, insumos/historial_pedidos.csv o docs/datos_sinteticos.md, detente y pídemelos.
-2. Si no existe .specify/, inicializa Spec Kit aquí sin git: specify init --here --integration claude --no-git. Verifica .claude/skills/speckit-* y .specify/templates; specs/ queda en la raíz.
+2. Si no existe .specify/, inicializa Spec Kit aquí sin la extensión de git: specify init --here --integration claude (no agregues --extension git). Verifica .claude/skills/speckit-* y .specify/templates; specs/ queda en la raíz.
 3. Crea CLAUDE.md en la raíz con: propósito, stack, comandos, convenciones (español, TDD, ruff sin errores; commits «p12-spec:» por fase de la spec y «tipo(alcance): qué cambió» al implementar, por ejemplo test(us1) y feat(us1) por historia; etiquetas v1.0-local, v1.0-gcp y v1.0-demo) y estas reglas:
    a. El README es la fuente de verdad.
    b. Solo insumos/base_conocimiento/ se indexa en el RAG; el menú, la disponibilidad, los precios y los pedidos nunca van al RAG; docs/otros/ nunca se indexa ni se carga.
@@ -78,7 +78,7 @@ Este proyecto vive en la raíz del repositorio D4nielRivas/ia20-esumer-proyectos
    e. La previsión es informativa y nunca cambia disponibilidad ni la aceptación de pedidos.
    f. Desarrollo y pytest siempre con Ollama o adaptadores falsos; la API de Gemini solo en la evaluación final y el Demo.
    g. El front es Streamlit y solo captura y muestra: consume FastAPI por HTTP (API_URL), sin reglas de negocio ni llamadas al LLM.
-4. Crea .claude/settings.json con permisos: permitir uv, pytest, docker compose, git add/commit y edición dentro del repo (nunca en insumos/); negar git push, gcloud y lectura de .env.
+4. Crea .claude/settings.json con permisos: permitir uv, pytest, docker compose, git add/commit y edición dentro del repo (nunca en insumos/); negar gcloud y lectura de .env; git push en "ask" (pide confirmación), para que el Prompt 2 pueda integrar cada historia en main con mi aprobación. En esta sesión no hagas push.
 5. Usa el .gitignore de la raíz (ya trae los mínimos del curso: .env, !.env.example, .venv/, __pycache__/, .pytest_cache/, pgdata/, .DS_Store y .claude/settings.local.json); solo añade líneas si hace falta.
 6. Commits: un commit por fase de Spec Kit, solo con CLAUDE.md, .claude/, .specify/, specs/ y .gitignore, con prefijo «p12-spec:». No modifiques README.md, PROMPT_SPEC.md, docs/ ni insumos/.
 
@@ -272,7 +272,7 @@ La Fase 2 es la spec 002-despliegue-gcp: especifícala (spec, plan y tareas) a p
 2. Spec 001-chat-y-politicas-local: /speckit-specify → /speckit-clarify → /speckit-plan → /speckit-tasks → /speckit-analyze.
 3. Spec 002-despliegue-gcp: el mismo ciclo, sobre la imagen, el contrato HTTP y las variables de entorno que dejó la spec 001 (perfil RAG_PERFIL=gcp). La spec 003 de automatización es opcional y no se crea ahora.
 Cómo hacer cada paso:
-- /speckit-specify: el qué y el porqué, sin tecnología. Historias H-1…H-7 y H-9 en la spec 001 (partes A y B) y H-8 en la spec 002, según la ficha técnica §4, con criterios de aceptación verificables trazados a RF, RNF, R y P del README y a los casos de los sets de prueba. Incluye las secciones «Conflictos detectados», «Recortes pendientes de aprobación» (desde docs/recortes_p12.md) y «Fuera de alcance (NA)».
+- /speckit-specify: el qué y el porqué, sin tecnología. Historias H-1…H-7 y H-9 en la spec 001 (partes A y B) y H-8 en la spec 002, según la ficha técnica §4, con criterios de aceptación verificables trazados a RF, RNF, R y P del README y a los casos de los sets de prueba. Incluye las secciones «Conflictos detectados», «Recortes pendientes de aprobación» (desde docs/recortes_p12.md) y «Fuera de alcance (NA)». Al terminar, verifica que exista specs/<spec>/checklists/requirements.md y que todos sus ítems queden marcados; si alguno no se cumple, corrige la spec antes de pasar a clarify.
 - /speckit-clarify: responde tú cada pregunta con la opción recomendada y justifícala en una línea en Aclaraciones. Lo que el README resuelve (Anexo A) no se vuelve a preguntar; usa su lista de pendientes como supuestos.
 - /speckit-plan con el stack de arriba; debe pasar el Constitution Check. El data-model reproduce el README §3.2 (tablas, PK, FK, UNIQUE, CHECK y vistas) sin cambiar nombres. Los contratos usan P2 v1.1 tal como está en el README §3.6. Documenta en research.md (Decisión / Justificación / Alternativas):
   - la máquina de estados de la conversación guiada y cómo se combina con la extracción del texto libre;

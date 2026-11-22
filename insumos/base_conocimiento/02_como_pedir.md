@@ -2,7 +2,7 @@
 titulo: Cómo se arma un pedido de almuerzo
 organizacion: Panadería Tomasseli
 version: 0.1
-estado: borrador pendiente de validación por Tomasseli
+estado: vigente
 vigente_desde: 2026-11-21
 responsable: por definir (administración)
 ---

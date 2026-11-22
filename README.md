@@ -220,7 +220,7 @@ Sí, para una tarea acotada y de menor prioridad: prever cuántos pedidos habrá
 
 ### 2.6 Supuestos y riesgos
 
-**Supuestos por validar en H1:** catálogo del menú del día con ID y categorías (ya en `insumos/`); horario fijo de lunes a domingo de 11:30 a 15:30; recogida en el sitio y domicilio dentro de 1 km con cargo de $5.000 COP (quién hace la entrega y cómo se mide el radio); borradores de políticas en `insumos/base_conocimiento/` (horario y modalidades, cómo pedir, cambios y cancelaciones, medios de pago, alérgenos, aviso de privacidad y domicilios); historial de pedidos real para reemplazar el sintético de la previsión; precios vigentes; responsables de cada bandeja; alojamiento y administración de PostgreSQL en GCP; mecanismo con el que los Forms actualizan la base de datos; servicio propio del chatbot (alojamiento en GCP y acceso a WhatsApp Business API); forma de la visualización de `pedidos` para cocina (vista, panel o consulta); volumen simultáneo; cuentas y accesos.
+**Supuestos por validar en H1:** catálogo del menú del día con ID y categorías (ya en `insumos/`); horario fijo de lunes a domingo de 11:30 a 15:30; recogida en el sitio y domicilio dentro de 1 km con cargo de $5.000 COP (quién hace la entrega y cómo se mide el radio); contenido de las políticas vigentes en `insumos/base_conocimiento/` (horario y modalidades, cómo pedir, cambios y cancelaciones, medios de pago, alérgenos, aviso de privacidad y domicilios); historial de pedidos real para reemplazar el sintético de la previsión; precios vigentes; responsables de cada bandeja; alojamiento y administración de PostgreSQL en GCP; mecanismo con el que los Forms actualizan la base de datos; servicio propio del chatbot (alojamiento en GCP y acceso a WhatsApp Business API); forma de la visualización de `pedidos` para cocina (vista, panel o consulta); volumen simultáneo; cuentas y accesos.
 
 | Riesgo | Efecto | Mitigación |
 |---|---|---|
@@ -540,18 +540,18 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 | Política de cancelación | Antes de confirmar, en la conversación; después, solo con el operador y sin penalidad (`insumos/base_conocimiento/03_cambios_y_cancelaciones.md`) |
 | Conservación de datos | Pedidos 90 días y estado de conversaciones 30 días, configurables; sin texto completo de los mensajes |
 | Alérgenos | Política general en el RAG (`05_alergenos.md`); el bot no confirma ni descarta alérgenos de un plato y escala la pregunta a una persona. Los alérgenos por plato quedan fuera de esta fase |
-| Aviso de privacidad | Borrador en el RAG (`06_aviso_privacidad.md`); las solicitudes de corrección o borrado se escalan a una persona |
+| Aviso de privacidad | Vigente en el RAG (`06_aviso_privacidad.md`, v0.1); las solicitudes de corrección o borrado se escalan a una persona |
 | Previsión de pedidos | Regresión por lote del día siguiente, por franja de 30 minutos y opción; historial sintético de 12 semanas (10 de entrenamiento y 2 de prueba); solo informativa; modelo de scikit-learn en `app/models/vN/`, servido por FastAPI en `GET /prevision` y visible en el resumen diario |
 | Conversación | Guiada: opciones numeradas por categoría y estado por conversación; el LLM clasifica la intención y extrae del texto libre (P2 v1.1) hacia el mismo estado. Las validaciones son las mismas (§3.4) |
 | Front | Streamlit como segundo servicio (puerto 8501) que consume FastAPI por `API_URL`; FastAPI es solo el back (decisión del docente, 22 Nov 2026) |
 | Specs de Spec Kit | `001-chat-y-politicas-local` (todo lo local), `002-despliegue-gcp` (la especifica el equipo y la ejecuta el docente) y `003-automatizacion` (opcional; por ahora no va), según la guía del curso del 22 Nov 2026 |
 | LLM de pago | API de Gemini (`gemini-3.1-flash-lite`) con tope de 1 USD, caché y registro de gasto; solo para la evaluación final y el Demo |
-| Base de conocimiento | `insumos/base_conocimiento/`, como pide la guía de implementación del curso |
+| Base de conocimiento | `insumos/base_conocimiento/`, como pide la guía de implementación del curso: siete documentos en estado `vigente` (versiones 0.1 y 0.2). La ingesta solo indexa los de esa carpeta con `estado: vigente` y `vigente_desde` hasta la fecha de ingesta, y guarda su versión en `fragmentos_politicas` (22 Nov 2026) |
 | Recortes y desvíos frente a la guía | n8n, WhatsApp real y Loyverse en la spec 003 opcional (resuelto por la guía); precios informativos y alérgenos sin datos por plato, pendientes del docente; desvíos que el equipo mantiene (conversación guiada, simulador en la nube, tres roles, build local, 18 preguntas). Todo en `docs/recortes_p12.md` |
 
 **Pendientes de validar con Tomasseli:**
 
-- Contenido de los borradores de políticas en `insumos/base_conocimiento/` (versiones 0.1 y 0.2), incluidos alérgenos, aviso de privacidad y domicilios.
+- Contenido de las políticas vigentes en `insumos/base_conocimiento/` (versiones 0.1 y 0.2), incluidos alérgenos, aviso de privacidad y domicilios: Tomasseli las confirma o corrige en el piloto; si cambia un texto, se sube su versión y se vuelve a ingestar.
 - Domicilios: quién hace la entrega, cómo se verifica el radio de 1 km y el cargo de $5.000 COP.
 - Historial real de pedidos, agregado y sin datos personales, para reemplazar el sintético de la previsión.
 - Precios vigentes del menú.

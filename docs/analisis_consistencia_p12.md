@@ -49,7 +49,7 @@ Registro de las inconsistencias encontradas entre `README.md`, `docs/ficha-tecni
 
 ## C. Pendientes (no los resuelve el equipo)
 
-- Validar con Tomasseli los borradores de `insumos/base_conocimiento/`, los precios vigentes, los responsables de cada Form y del resumen diario, y el responsable de privacidad.
+- Validar con Tomasseli el contenido de las políticas de `insumos/base_conocimiento/` (en estado vigente desde el 22 Nov 2026; si cambia un texto, se sube su versión y se vuelve a ingestar), los precios vigentes, los responsables de cada Form y del resumen diario, y el responsable de privacidad.
 - Aprobación del docente para los recortes de `docs/recortes_p12.md` (n8n, precios y alérgenos por plato).
 - Historial real de pedidos para reemplazar el sintético de la previsión.
 

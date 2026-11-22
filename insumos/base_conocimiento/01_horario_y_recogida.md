@@ -2,7 +2,7 @@
 titulo: Horario de servicio y modalidades del pedido
 organizacion: Panadería Tomasseli
 version: 0.2
-estado: borrador pendiente de validación por Tomasseli
+estado: vigente
 vigente_desde: 2026-11-22
 responsable: por definir (administración)
 ---

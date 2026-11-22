@@ -2,7 +2,7 @@
 titulo: Alérgenos e ingredientes
 organizacion: Panadería Tomasseli
 version: 0.1
-estado: borrador pendiente de validación por Tomasseli
+estado: vigente
 vigente_desde: 2026-11-22
 responsable: por definir (cocina)
 ---

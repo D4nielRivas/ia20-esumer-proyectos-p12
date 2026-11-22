@@ -2,7 +2,7 @@
 titulo: Aviso de privacidad para pedidos por WhatsApp
 organizacion: Panadería Tomasseli
 version: 0.1
-estado: borrador pendiente de validación por Tomasseli (Ley 1581 de 2012)
+estado: vigente (Ley 1581 de 2012)
 vigente_desde: 2026-11-22
 responsable: por definir (responsable del tratamiento de datos de Tomasseli)
 ---
