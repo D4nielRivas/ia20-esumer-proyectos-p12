@@ -1,0 +1,9 @@
+# Mínimos del curso (rúbrica R5)
+.env
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+pgdata/
+.DS_Store
+.claude/settings.local.json
