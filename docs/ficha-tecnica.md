@@ -82,7 +82,7 @@ El número de cada historia es también su orden de implementación, salvo H-9, 
 | **H-1** Políticas con citas | 001 (parte A) | RAG sobre `insumos/base_conocimiento/` con citas validadas, «no lo encuentro» y escalamiento de las preguntas sensibles | P-15, P-16, P-17, P-19 y `insumos/preguntas_politicas.jsonl` |
 | **H-2** Menú del día vigente | 001 (parte B) | Ingesta de la plantilla semanal, generación del menú de cada fecha y consulta por categoría con precios | P-02 |
 | **H-3** Pedido completo por WhatsApp ★ MVP | 001 (parte B) | Conversación, P2 v1.1, validaciones (R1–R5, R8, R11, R12, R15), resumen con total estimado, confirmación y registro idempotente | P-04 a P-09 |
-| **H-4** Cocina ve pedidos y alertas | 001 (parte B) | `v_pedidos_operativa` y alertas en solo lectura, con roles | P-13 |
+| **H-4** Cocina ve pedidos y alertas | 001 (parte B) | `v_pedidos_operativa` y alertas en solo lectura, con el rol `p12_cocina` y su clave de API | P-13 |
 | **H-5** Forms de menú y agotados | 001 (parte B) | Alta, cambio y agotado validados, auditados y visibles al bot en ≤ 1 minuto | P-01, P-03 |
 | **H-6** Operador y plan B | 001 (parte B) | Derivación, pausa y reactivación del bot, cambios y cancelaciones después de confirmar, y fallas sin confirmación falsa | P-10, P-11 |
 | **H-7** Resumen diario y evaluación final | 001 (parte B) | `v_resumen_diario`, evaluación completa con `insumos/conversaciones_prueba.jsonl`, `docs/informes/evaluacion_local`, entregables de despliegue e `infra/humo.jsonl` | P-12, P-14 y metas |

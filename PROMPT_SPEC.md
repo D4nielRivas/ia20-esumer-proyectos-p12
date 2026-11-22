@@ -140,7 +140,7 @@ Spec 001 · Parte B (conversación, pedido y datos):
    - validar (R1–R5, R8, R11, R12, R15);
    - mostrar el resumen con total estimado y recibir la aceptación explícita;
    - revalidar la disponibilidad y registrar de forma idempotente en pedidos y detalle_pedido (P-04 a P-09).
-5. H-4 · RF7: v_pedidos_operativa y alertas para cocina, en solo lectura y sin el teléfono completo; roles de PostgreSQL por perfil (R10, R13; P-13).
+5. H-4 · RF7: v_pedidos_operativa y alertas para cocina, en solo lectura y sin el teléfono completo; rol p12_cocina de solo lectura (R10, R13; P-13).
 6. H-5 · RF2: formularios de alta, cambio y agotado validados, auditados en bitacora y reflejados en ≤ 1 minuto (RNF8; P-01, P-03).
 7. H-6 · RF8 y RF9: derivación, pausa y reactivación del bot (tabla conversaciones); cambios y cancelaciones después de confirmar solo por el operador; alertas por falla (R6, R7); plan B sin confirmaciones falsas (P-10, P-11).
 8. H-7 · RF10: v_resumen_diario por estado, modalidad y canal, con pendientes e incidencias (P-12). Evaluación completa con insumos/conversaciones_prueba.jsonl y P-01 a P-19, con informe en docs/informes/evaluacion_local.
@@ -225,7 +225,8 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - canal: whatsapp_simulador (whatsapp_cloud queda para la spec 003; la interfaz lo permite, pero no se implementa ahora);
    - reloj: inyectable, para probar la ventana con fecha y hora simuladas.
 2. Toda la configuración por variables de entorno, con .env.example completo y documentado y sin secretos. Incluye:
-   - RAG_PERFIL, PORT, DATABASE_URL, API_URL, API_KEY, OLLAMA_URL y RAG_EMBED_DIM;
+   - RAG_PERFIL, PORT, DATABASE_URL (p12_app), DATABASE_URL_COCINA (p12_cocina), DATABASE_URL_ADMIN (p12_admin, solo la ingesta), API_URL, OLLAMA_URL y RAG_EMBED_DIM;
+   - las claves de API por perfil: API_KEY_FORMULARIOS, API_KEY_COCINA, API_KEY_OPERADOR y API_KEY_ADMIN;
    - TZ_NEGOCIO, MARGEN_PREPARACION_MIN, RETENCION_PEDIDOS_DIAS y RETENCION_CONVERSACIONES_DIAS;
    - LLM_PROVEEDOR, LLM_MODELO, LLM_TOPE_USD, LLM_TEMPERATURA, GEMINI_API_KEY (vacía) y los timeouts de RNF1;
    - los tokens de WhatsApp.
@@ -241,7 +242,7 @@ Requisitos no funcionales que deben quedar en la spec y resolverse en el plan:
    - Errores 422 y 503 como {"error","detalle"}.
    - El JSON de salida no cambia entre local y gcp.
 8. RNF1: si el LLM o la base no responden dentro del umbral, se informa al cliente, se deriva al operador y nunca se confirma.
-9. Mínimo privilegio con roles de PostgreSQL (chatbot, formularios, cocina en solo lectura, operador, administración).
+9. Mínimo privilegio con tres roles de PostgreSQL: p12_admin (dueño del esquema; lo usa la ingesta), p12_app (lectura y escritura operativa: chatbot, formularios y operador) y p12_cocina (solo SELECT sobre v_pedidos_operativa y alertas; lo usan las rutas /cocina/*). La separación entre chatbot, formularios, operador, cocina y administración la hace FastAPI con una clave de API por perfil: cada ruta acepta solo las claves de los perfiles que la usan (P-13). No crees más roles de base de datos.
 10. Datos personales (Ley 1581):
     - registros sin datos personales;
     - teléfono normalizado que cocina no ve completo;

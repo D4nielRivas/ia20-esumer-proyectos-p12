@@ -300,7 +300,7 @@ FastAPI (modelo cargado) -> GET /prevision -> prediccion_pedidos
 
 La regla de una sola opción por categoría en cada almuerzo (R12) la garantiza la unicidad (`pedido_id`, `almuerzo`, `categoria`). Que el principal sea ME **o** MS, no ambos, y que cada almuerzo tenga su sopa y su jugo (o la nota «sin sopa» o «sin jugo») se valida antes de registrar. La antelación mínima de 15 minutos depende de la hora de confirmación, así que se valida en la regla R11 y no en un CHECK.
 
-Los roles de PostgreSQL separan los permisos por perfil (chatbot, formularios, cocina en solo lectura, operador y administración), y las credenciales se guardan fuera de la base de datos. Si la concurrencia o el volumen aumentan, se revisa el dimensionamiento del servidor y de las conexiones.
+Los permisos se separan con tres roles de PostgreSQL: `p12_admin` (dueño del esquema; lo usa la ingesta), `p12_app` (lee y escribe lo operativo; lo usa el servicio para el chatbot, los Forms y el operador) y `p12_cocina` (solo lectura de `v_pedidos_operativa` y `alertas`; lo usan las rutas de cocina). La separación entre chatbot, Forms, operador y administración la hace FastAPI con una clave de API por perfil. Las credenciales se guardan fuera de la base de datos. Si la concurrencia o el volumen aumentan, se revisa el dimensionamiento del servidor y de las conexiones.
 
 ### 3.3 Reglas de negocio
 
@@ -408,7 +408,7 @@ Los nombres coinciden con las columnas de `pedidos` y `detalle_pedido`: cada alm
 
 ### 3.7 Seguridad, privacidad y operación
 
-- Roles de PostgreSQL por perfil con mínimo privilegio: el chatbot solo lee el menú del día y escribe pedidos; los Forms solo modifican los datos que les corresponden; cocina, administración y operador consultan por vistas (cocina en solo lectura).
+- Mínimo privilegio con tres roles de PostgreSQL: `p12_admin` (dueño del esquema; lo usa la ingesta), `p12_app` (lee y escribe lo operativo; lo usa el servicio para el chatbot, los Forms y el operador) y `p12_cocina` (solo lectura de `v_pedidos_operativa` y `alertas`; lo usan las rutas de cocina). La separación entre chatbot, Forms, operador y administración la hace FastAPI con una clave de API por perfil: cada ruta acepta solo las claves de los perfiles que la usan, y cocina nunca escribe.
 - Cuentas institucionales con propietario organizacional y acceso restringido a la base de datos (para el piloto con Tomasseli).
 - Llaves de API, tokens de WhatsApp Business API y credenciales fuera de tablas, prompts y conversaciones: `.env` en local (nunca en Git) y Secret Manager en GCP. Las rutas de formularios, cocina, operador, resumen, políticas y evaluación exigen la cabecera `X-API-Key`; el webhook de WhatsApp verifica su token y su firma.
 - Datos del cliente limitados a lo necesario; el teléfono completo no aparece en la visualización de `pedidos` para cocina salvo necesidad aprobada; no se guarda el texto completo de las conversaciones.
@@ -509,6 +509,7 @@ Hasta validarlas con Tomasseli, los componentes descritos son diseño objetivo y
 | Alojamiento de PostgreSQL | PostgreSQL 16 + pgvector en Docker en local; Cloud SQL en GCP, desplegado y borrado el mismo día por el docente |
 | Mecanismo de los Forms | Los Forms llaman a un endpoint validado del servicio (`POST /formularios/menu`). En esta fase, en local y en la nube, son pantallas de Streamlit; Google Forms queda para la spec 003 |
 | Canal en esta fase | Simulador de WhatsApp con el formato de WhatsApp Cloud API, en local y en la nube; WhatsApp Business real queda para la spec 003 |
+| Roles de PostgreSQL | Tres: `p12_admin`, `p12_app` y `p12_cocina` (solo lectura). Los cinco perfiles (chatbot, Forms, cocina, operador y administración) se separan con claves de API por perfil en FastAPI (22 Nov 2026) |
 | Librerías del back | psycopg 3 con `schema.sql` (sin ORM ni migraciones) y `httpx` directo a Ollama, Gemini y Vertex con validación Pydantic (sin frameworks de LLM). Las políticas viajan dentro de la imagen (sin Cloud Storage) |
 | Servicio propio del chatbot | FastAPI en una imagen Docker; en local con `uvicorn` y en GCP en Cloud Run (escala a cero). La carga manual por el operador queda solo como contingencia (plan B) |
 | Visualización para cocina | Pantalla de Streamlit que lee `GET /cocina/pedidos` (sobre `v_pedidos_operativa`): ID, hora de recogida, modalidad, almuerzos con sus líneas y notas. Sin alérgenos en esta fase |
