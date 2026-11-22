@@ -2,7 +2,7 @@
 
 **Ficha técnica: RAG, Spec Kit y Google Cloud** · IA Aplicada y Automatización de Procesos con IA Generativa (IA20) · Esumer
 
-📋 [Ficha de especificación](../README.md) · 📄 [Ficha en PDF](proyecto-12-del-chat-a-la-comanda.pdf) · 🧭 [Análisis de consistencia](analisis_consistencia_p12.md) · 📐 [Prompt de la spec](../PROMPT_SPEC.md)
+📋 [Ficha de especificación](../README.md) · 📄 [Ficha en PDF](proyecto-12-del-chat-a-la-comanda.pdf) · 🧭 [Análisis de consistencia](analisis_consistencia_p12.md) · 📐 [Prompt de la spec](../PROMPT_SPEC.md) · ✅ [Cumplimiento de la guía](cumplimiento_guia_p12.md) · ↔️ [Recortes y desvíos](recortes_p12.md)
 
 Esta ficha resume **cómo se construye el proyecto** en la etapa final del curso: cómo se organiza el repositorio, qué parte resuelve un RAG, qué principios propios lleva la constitución de Spec Kit, qué specs e historias se escriben, cómo se prueba en local, qué se despliega en Google Cloud y cómo se presenta en el Demo. El **qué y el porqué** del proyecto (necesidades, requisitos, reglas, modelo de datos y flujo) siguen en la [ficha de especificación](../README.md). Si esta ficha y el README difieren, manda el README.
 
@@ -14,7 +14,7 @@ Esta ficha resume **cómo se construye el proyecto** en la etapa final del curso
 | **IA** | IA generativa (LLM de un proveedor aprobado, detrás de un adaptador: Ollama, API de Gemini con tope o Vertex AI) para conversación y extracción del pedido; RAG para las políticas; reglas determinísticas para validar y registrar |
 | **Machine Learning** | Regresión por lote para la previsión de pedidos del día siguiente (solo informativa, historia de menor prioridad) |
 | **API de pago** | Gemini `gemini-3.1-flash-lite`, tope de 1 USD para P12, solo para la evaluación final de la Fase 2 y el Demo Day |
-| **Orquestación** | Servicio propio del chatbot en lugar de n8n (recorte pendiente de aprobación del docente, ver [`recortes_p12.md`](recortes_p12.md)); n8n queda para etapas posteriores |
+| **Orquestación** | Servicio propio del chatbot; n8n, WhatsApp real y Loyverse quedan en la spec `003-automatizacion`, opcional (ver [`recortes_p12.md`](recortes_p12.md)) |
 | **Base de conocimiento del RAG** | Políticas de la panadería (`insumos/base_conocimiento/`) |
 | **Complejidad del despliegue** | Alta |
 | **Código del proyecto** | `p12` |
@@ -27,28 +27,34 @@ Esta ficha resume **cómo se construye el proyecto** en la etapa final del curso
 
 ```text
 ia20-esumer-proyectos-p12/
-├── README.md         # Ficha de especificación
-├── PROMPT_SPEC.md    # Prompt con el que se genera la spec (Prompt 1 de Spec Kit)
-├── docs/             # Esta ficha, la ficha de especificación en PDF, análisis de consistencia, recortes, informes (docs/informes/) y material del demo
-│   └── otros/        # Referencias históricas: especificación v1.2 (no es fuente)
-├── scripts/          # Utilidades del equipo (historial sintético de pedidos)
-├── insumos/          # CSV del menú (plantilla semanal), base de conocimiento del RAG (base_conocimiento/), sets de prueba e historial para la previsión
-├── .specify/ y specs/  # Spec Kit
-└── src/ y tests/       # Implementación (Prompt 2)
+├── README.md         # Ficha, integrantes, estado y cómo correrlo
+├── PROMPT_SPEC.md · .gitignore
+├── docs/             # Ficha en PDF, ficha técnica, análisis de consistencia, recortes y desvíos, datos sintéticos, cumplimiento de la guía e informes (docs/informes/)
+│   └── otros/        # Referencias históricas (especificación v1.2) y apuntes; no son fuente de la spec
+├── insumos/          # Lo que recibe el equipo: base_conocimiento/ (RAG), CSV del menú, sets de prueba e historial sintético
+├── scripts/          # generar_pedidos_sinteticos.py y pdf_ficha/ (genera la ficha en PDF)
+├── CLAUDE.md · .claude/ · .specify/                     # Al correr Spec Kit
+├── specs/001-chat-y-politicas-local/ · 002-despliegue-gcp/
+├── pyproject.toml · uv.lock · .env.example               # Al implementar
+├── docker-compose.yml                                    # PostgreSQL 16 + pgvector
+├── app/              # config.py (perfil local | gcp), api/ (FastAPI), front/ (Streamlit), dominio/, servicios/, adaptadores/ y models/vN/ (modelo + metadata.json)
+├── sql/ · tests/     # schema.sql y pruebas
+├── Dockerfile · .dockerignore · .gcloudignore
+└── infra/humo.jsonl
 ```
 
 Los nombres de carpeta van en minúscula.
 
 ## 2. Dónde entra el RAG
 
-Es el proyecto que mejor enseña el límite del RAG: el menú del día, la disponibilidad y los precios **no** van al RAG porque cambian cada día y deben ser exactos. El RAG responde solo políticas: el horario fijo, la recogida en el sitio (para llevar o para consumir en el sitio) y que no hay domicilios, cómo se arma un pedido, cambios, cancelaciones, medios de pago, alérgenos (en general) y el aviso de privacidad. Las preguntas sensibles (alérgenos de un plato, uso o borrado de datos personales) no se responden de fondo: se escalan a una persona.
+Es el proyecto que mejor enseña el límite del RAG: el menú del día, la disponibilidad y los precios **no** van al RAG porque cambian cada día y deben ser exactos. El RAG responde solo políticas: el horario fijo, la recogida en el sitio (para llevar o para consumir en el sitio), los domicilios (1 km, cargo de $5.000 COP y formas de pago), cómo se arma un pedido, cambios, cancelaciones, medios de pago, alérgenos (en general) y el aviso de privacidad. Las preguntas sensibles (alérgenos de un plato, uso o borrado de datos personales) no se responden de fondo: se escalan a una persona.
 
 | ✅ Va al RAG (`insumos/base_conocimiento/`) | ❌ No va al RAG |
 |---|---|
-| Horario fijo (lunes a domingo, de 11:30 a 15:30, solo pedidos para el mismo día), recogida solo en el sitio y que no hay domicilios | Menú del día, disponibilidad y precios (PostgreSQL) |
+| Horario fijo (lunes a domingo, de 11:30 a 15:30, solo pedidos para el mismo día), recogida en el sitio y domicilios (1 km a la redonda, cargo de $5.000 COP, transferencia previa o efectivo al domiciliario) | Menú del día, disponibilidad y precios (PostgreSQL) |
 | Cómo se arma un almuerzo (un principal, una sopa, un jugo), cambios, cancelaciones y medios de pago | Pedidos, conversaciones y alertas (PostgreSQL) |
 | Política general de alérgenos y aviso de privacidad (Ley 1581) | Previsión de pedidos (regresión por lote, `prediccion_pedidos`) |
-| Explicación al cliente de las reglas, por ejemplo por qué no hay domicilios | Validación del pedido: una opción por categoría en cada almuerzo, modalidad, ventana de recogida y total estimado (reglas determinísticas) |
+| Explicación al cliente de las reglas, por ejemplo cómo funciona el domicilio y por qué lo atiende una persona | Validación del pedido: una opción por categoría en cada almuerzo, modalidad, ventana de recogida y total estimado (reglas determinísticas) |
 
 > Un buen diseño **no mete todo en el RAG**: lo que cambia cada día o debe ser exacto va en tablas y reglas, y lo sensible lo decide una persona.
 
@@ -95,7 +101,7 @@ El guion del Demo (sección 7) queda cubierto por H-1 a H-7; la previsión (H-9)
 
 - Servicio propio del chatbot en local + PostgreSQL 16 con pgvector en Docker + simulador del webhook de WhatsApp.
 - Front en Streamlit (segundo servicio, puerto 8501) que consume FastAPI por `API_URL`: vista de chat sobre el simulador del webhook, vista de cocina, vista del operador y resumen diario con la previsión.
-- Simulador de los Forms de menú, disponibilidad y agotados: pantallas de Streamlit que llaman al mismo endpoint que usarán los Google Forms y escriben en `menu_del_dia`.
+- Simulador de los Forms de menú, disponibilidad y agotados: pantallas de Streamlit que llaman a `POST /formularios/menu` (el mismo endpoint que usarían los Google Forms de la spec 003) y escriben en `menu_del_dia`.
 - n8n local en Docker: **no aplica** (queda para etapas posteriores).
 - 30 conversaciones en `insumos/conversaciones_prueba.jsonl`: pedido completo de uno y de varios almuerzos, datos faltantes, agotado, dos opciones de una categoría en un almuerzo, pedido sin modalidad o con domicilio, hora fuera de la ventana, cambio o cancelación después de confirmar (se deriva al operador), paso a humano, reintento del webhook e inyección.
 - 18 preguntas de políticas en `insumos/preguntas_politicas.jsonl`, de los 4 tipos que pide el curso: documento (6), fuera de alcance (4), sensible (4) y trampa (4), cada una con su comportamiento y su documento esperado. Metas: citas válidas 100 % en las de documento, «no lo encuentro» ≥ 90 % en las fuera de alcance, escalamiento ≥ 90 % en las sensibles y 0 trampas exitosas.
@@ -111,15 +117,15 @@ Las metas de la ficha (README §1.7) se registran en `docs/informes/evaluacion_l
 - Artifact Registry, repositorio `ia20`, con la imagen. Se construye en el portátil con `docker buildx build --platform linux/amd64` (el Mac es ARM), se sube con `docker push` y se despliega con `gcloud run deploy --image`. No se usan `--source` ni Cloud Build, que suben el código a un bucket.
 - **Nada en Cloud Storage:** políticas, CSV, historial y modelo van en la imagen; los datos, en Cloud SQL; las evidencias, en `docs/informes/`.
 - Cloud SQL for PostgreSQL 16 (db-f1-micro) + pgvector (menú, pedidos, conversaciones, alertas, bitácora, fragmentos de políticas y previsión).
-- Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Secret Manager. Sin Cloud Storage: las políticas viajan dentro de la imagen.
+- Vertex AI (Gemini Flash y embeddings `text-multilingual-embedding-002`, dimensión 768) · Secret Manager.
 - Canal y formularios: los mismos que en local (simulador de WhatsApp que llama Streamlit, con el formato de WhatsApp Cloud API, y formularios de Streamlit contra `/webhook/whatsapp` y `/formularios/menu`). La firma del webhook solo se cubre con una prueba unitaria. WhatsApp Business real y Google Forms quedan para la spec 003.
-- n8n Cloud o n8n en Cloud Run: **no aplica** mientras el docente apruebe el recorte de n8n (`recortes_p12.md`).
+- n8n Cloud o n8n en Cloud Run: **no aplica** en esta fase; queda en la spec `003-automatizacion`, opcional.
 
-El equipo entrega la imagen probada en local con lo que exige la Fase 1 (ver `PROMPT_SPEC.md`, sección «Integración»). El docente despliega con el equipo presente y borra todo el mismo día, incluida la instancia de Cloud SQL, con evidencia en `docs/informes/despliegue` y `docs/informes/borrado`. Es el despliegue más complejo: el docente lo ensaya antes de la sesión.
+El equipo entrega la imagen probada en local con lo que exige la Fase 1 (ver `PROMPT_SPEC.md`, sección «Integración»). El docente despliega con el equipo presente, prueba con humo y la deja apagada hasta el Demo Day (Cloud Run con mínimo 0 instancias y la instancia de Cloud SQL detenida, que solo cobra el almacenamiento), con evidencia en `docs/informes/despliegue`. Es el despliegue más complejo: el docente lo ensaya antes de la sesión.
 
 ## 7. Guion del Demo (12 min)
 
-El docente **despliega** → cambiar el menú (agotado por Form) → pregunta de política con citas → pedido de dos almuerzos con una validación → pedidos para cocina, cancelación por el operador y resumen diario con la previsión → el docente **borra**.
+El docente **enciende** → cambiar el menú (agotado por Form) → pregunta de política con citas → pedido de dos almuerzos con una validación → pedidos para cocina (comanda), cancelación por el operador y resumen diario con la previsión → el docente **apaga**.
 
 ## 8. Cronograma del proyecto
 
@@ -128,5 +134,5 @@ El docente **despliega** → cambiar el menú (agotado por Form) → pregunta de
 | 14 y 15 Nov | Definición del alcance y Spec Kit | Leer la ficha, definir qué va y qué no va al RAG (sección 2), instalar las herramientas (uv, Spec Kit, Docker, Ollama) y escribir la constitución con los principios de la sección 3. | — |
 | Hasta el 22 Nov | Fase 1 · Spec | Ajustar el prompt con la revisión del docente, armar los sets de prueba y correr `PROMPT_SPEC.md` para la constitución y las specs `001-chat-y-politicas-local` y `002-despliegue-gcp` (plan, tareas y análisis). | P0 · spec |
 | 23 al 29 Nov | Fase 2 · Implementación local | Implementar con el Prompt 2, historia por historia (H-1 a H-7 y H-9), en local con Ollama; correr las pruebas de la sección 5, calibrar hasta cumplir las metas, usar la API de Gemini solo en la evaluación final y probar la imagen con `docker build` y `docker run`. | P1 · `v1.0-local` |
-| 30 Nov al 6 Dic | Fase 3 · Google Cloud con el docente | El docente despliega la imagen con `002-despliegue-gcp`; se verifica con la prueba de humo y la evaluación (H-8) y se borra el mismo día. Sin clase el 5 y 6 de diciembre. | P2 · nube |
-| 12 y 13 Dic | Demo | Etiqueta `v1.0-demo` el 12 de diciembre. El 13, el docente despliega desde cero; el equipo presenta con el guion de la sección 7; el docente borra con evidencia y revoca la key de Gemini. | Demo · `v1.0-demo` |
+| 30 Nov al 6 Dic | Fase 3 · Google Cloud con el docente | El docente despliega la imagen con `002-despliegue-gcp`; se verifica con la prueba de humo y la evaluación (H-8) y queda apagado, con evidencia. Etiqueta `v1.0-gcp`. Sin clase el 5 y 6 de diciembre. | P2 · nube |
+| 12 y 13 Dic | Demo | Etiqueta `v1.0-demo` el 12 de diciembre. El 13, el docente enciende el despliegue; el equipo presenta con el guion de la sección 7; el docente lo vuelve a apagar y revoca la key de Gemini. | Demo · `v1.0-demo` |
